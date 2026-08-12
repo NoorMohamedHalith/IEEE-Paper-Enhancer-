@@ -1,0 +1,6 @@
+{
+  "name": "IEEE InnovateX",
+  "description": "AI-Powered Research Enhancement Platform - Transform Research into Innovation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
