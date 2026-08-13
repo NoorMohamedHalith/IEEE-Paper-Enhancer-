@@ -80,24 +80,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
       <aside
         className={`
           fixed lg:sticky top-0 lg:top-16 z-50 lg:z-10 h-[calc(100vh-4rem)]
-          w-64 bg-white dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col justify-between
-          transition-transform duration-300 ease-in-out
+          w-64 glass-panel border-r border-zinc-200/80 dark:border-zinc-800 flex flex-col justify-between
+          transition-transform duration-300 ease-in-out backdrop-blur-xl shadow-lg
           ${isMobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
       >
         <div className="flex-1 py-4 px-3 space-y-6 overflow-y-auto">
           
           {/* Mobile Header Inside Drawer */}
-          <div className="flex items-center justify-between px-2 pb-3 border-b border-zinc-100 dark:border-zinc-800 lg:hidden">
+          <div className="flex items-center justify-between px-2 pb-3 border-b border-zinc-200 dark:border-zinc-800 lg:hidden">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded bg-emerald-800 dark:bg-emerald-700 text-white flex items-center justify-center font-bold text-xs">
+              <div className="w-8 h-8 rounded-xl bg-brand-primary text-white flex items-center justify-center font-extrabold text-xs shadow-md neon-glow-cyan">
                 IX
               </div>
-              <span className="font-bold text-sm text-zinc-900 dark:text-zinc-100">IEEE InnovateX</span>
+              <span className="font-extrabold text-sm text-zinc-900 dark:text-zinc-100">IEEE InnovateX</span>
             </div>
             <button
               onClick={onCloseMobile}
-              className="p-1 rounded-md text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+              className="p-1 rounded-xl text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             >
               <X className="w-5 h-5" />
             </button>
@@ -105,7 +105,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
 
           {/* Navigation Links Group */}
           <div>
-            <div className="px-3 mb-2 text-[11px] font-semibold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase">
+            <div className="px-3 mb-2 text-[10px] font-extrabold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase">
               Main Menu
             </div>
             <nav className="space-y-1">
@@ -118,24 +118,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
                     key={item.id}
                     onClick={() => handleSelect(item.id)}
                     className={`
-                      w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-semibold transition-all
+                      w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer
                       ${
                         isActive
-                          ? 'bg-emerald-50 dark:bg-emerald-950/80 text-emerald-900 dark:text-emerald-200 border border-emerald-200/80 dark:border-emerald-800/80 shadow-2xs'
-                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800'
+                          ? 'bg-brand-light text-brand-primary border border-brand-primary shadow-sm neon-glow-brand hover:scale-[1.01]'
+                          : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-white/60 dark:hover:bg-zinc-800/60 hover:scale-[1.01]'
                       }
                     `}
                   >
                     <div className="flex items-center gap-2.5">
                       <Icon
                         className={`w-4 h-4 transition-colors ${
-                          isActive ? 'text-emerald-800 dark:text-emerald-400' : 'text-zinc-400 dark:text-zinc-500'
+                          isActive ? 'text-brand-primary' : 'text-zinc-400 dark:text-zinc-500'
                         }`}
                       />
                       <span>{item.label}</span>
                     </div>
 
-                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-emerald-800 dark:text-emerald-400" />}
+                    {isActive && <ChevronRight className="w-3.5 h-3.5 text-brand-primary" />}
                   </button>
                 );
               })}
@@ -143,21 +143,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
           </div>
 
           {/* Active Paper Focus Card */}
-          <div className="p-3 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200/80 dark:border-zinc-800">
-            <div className="flex items-center gap-1.5 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400 mb-2">
-              <BookmarkCheck className="w-3.5 h-3.5 text-emerald-800 dark:text-emerald-400" />
+          <div className="p-3.5 bg-white/60 dark:bg-zinc-900/60 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 backdrop-blur-md shadow-xs">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold tracking-wider text-zinc-500 dark:text-zinc-400 uppercase mb-2">
+              <BookmarkCheck className="w-3.5 h-3.5 text-cyan-500" />
               <span>Active Research Context</span>
             </div>
             {activePaper ? (
               <div className="space-y-1.5">
-                <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-snug">
+                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200 line-clamp-2 leading-snug">
                   {activePaper.title}
                 </p>
                 <div className="flex items-center gap-1.5">
                   <span
                     className={`inline-block w-2 h-2 rounded-full ${
                       activePaper.status === 'Analyzed'
-                        ? 'bg-emerald-500'
+                        ? 'bg-lime-500 shadow-lime-500/50 shadow-xs'
                         : activePaper.status === 'Analyzing'
                         ? 'bg-amber-500 animate-pulse'
                         : 'bg-zinc-400'
@@ -177,7 +177,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
           <div>
             <div className="flex items-center justify-between px-3 mb-2">
               <span className="text-[11px] font-semibold tracking-wider text-zinc-400 dark:text-zinc-500 uppercase flex items-center gap-1.5">
-                <History className="w-3 h-3 text-emerald-800 dark:text-emerald-400" />
+                <History className="w-3 h-3 text-brand-primary" />
                 <span>Recent Activity</span>
               </span>
               <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono">Top {recentPapers.length}</span>
@@ -192,10 +192,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
                       key={paper.id}
                       onClick={() => handleQuickAccess(paper.id)}
                       className={`
-                        w-full text-left p-2 rounded-lg text-xs transition-all border
+                        w-full text-left p-2 rounded-lg text-xs transition-all border cursor-pointer
                         ${
                           isSelected
-                            ? 'bg-emerald-50/70 dark:bg-emerald-950/60 border-emerald-200 dark:border-emerald-800 text-emerald-950 dark:text-emerald-200 font-medium'
+                            ? 'bg-brand-light border-brand-primary text-brand-primary font-bold'
                             : 'bg-zinc-50/50 dark:bg-zinc-950/50 border-zinc-100 dark:border-zinc-800/60 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800'
                         }
                       `}
@@ -207,7 +207,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isMobileOpen, onCloseMobile })
                         <span
                           className={`text-[9px] px-1.5 py-0.2 rounded font-bold shrink-0 ${
                             paper.status === 'Analyzed'
-                              ? 'bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-300'
+                              ? 'bg-brand-badge'
                               : 'bg-zinc-200 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400'
                           }`}
                         >

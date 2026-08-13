@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { IEEEPaper, NavigationTab, WorkflowStepId, WorkspaceSettings, AnalysisProgressStage, ActivityLog, ActivityActionType, InsightFeedback } from '../types';
+import { IEEEPaper, NavigationTab, AccentColor, WorkflowStepId, WorkspaceSettings, AnalysisProgressStage, ActivityLog, ActivityActionType, InsightFeedback } from '../types';
 import { dbService } from '../services/db';
 import { analyzePaperWithAI, generateLocalGroundedAnalysis } from '../services/ai/geminiService';
 import { generateEnhancementRecommendations } from '../services/ai/recommendationEngine';
@@ -66,6 +66,8 @@ interface PaperContextType {
   ) => Promise<void>;
   theme: 'light' | 'dark';
   toggleTheme: () => void;
+  accentColor: AccentColor;
+  setAccentColor: (color: AccentColor) => void;
   toastNotification: ToastNotification | null;
   dismissToast: () => void;
   undo: () => Promise<void>;
@@ -203,19 +205,36 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return 'light';
   });
 
+  const [accentColor, setAccentColorState] = useState<AccentColor>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('accentColor') as AccentColor;
+      if (['emerald', 'green', 'yellow', 'purple', 'rose', 'cyan'].includes(saved)) {
+        return saved;
+      }
+    }
+    return 'green'; // Default to Parrot Green / Lime
+  });
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
+      const root = document.documentElement;
       if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
+        root.classList.add('dark');
       } else {
-        document.documentElement.classList.remove('dark');
+        root.classList.remove('dark');
       }
+      root.setAttribute('data-accent', accentColor);
       localStorage.setItem('theme', theme);
+      localStorage.setItem('accentColor', accentColor);
     }
-  }, [theme]);
+  }, [theme, accentColor]);
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
+  };
+
+  const setAccentColor = (color: AccentColor) => {
+    setAccentColorState(color);
   };
 
   const dismissToast = () => {
@@ -857,6 +876,8 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateEnhancementDependencies,
         theme,
         toggleTheme,
+        accentColor,
+        setAccentColor,
         toastNotification,
         dismissToast,
         undo,

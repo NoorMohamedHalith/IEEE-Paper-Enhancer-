@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
-import { X, Database, Key, ShieldCheck, Trash2, Save, CheckCircle2, Sun, Moon } from 'lucide-react';
+import { ACCENT_THEMES } from './ThemeColorPicker';
+import { X, Database, Key, ShieldCheck, Trash2, Save, CheckCircle2, Sun, Moon, Palette, Check } from 'lucide-react';
 
 export const SettingsModal: React.FC = () => {
-  const { isSettingsModalOpen, setIsSettingsModalOpen, settings, updateSettings, clearWorkspace, theme, toggleTheme } = usePaperContext();
+  const { isSettingsModalOpen, setIsSettingsModalOpen, settings, updateSettings, clearWorkspace, theme, toggleTheme, accentColor, setAccentColor } = usePaperContext();
   const [workspaceName, setWorkspaceName] = useState(settings.workspaceName);
   const [dbType, setDbType] = useState<'local' | 'firestore'>(settings.dbAdapterType);
   const [autoAnalyze, setAutoAnalyze] = useState(settings.autoAnalyzeOnUpload);
@@ -80,9 +81,9 @@ export const SettingsModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => theme === 'dark' && toggleTheme()}
-                className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 transition-all ${
+                className={`p-2.5 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                   theme === 'light'
-                    ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-800 text-emerald-950 dark:text-emerald-200 ring-1 ring-emerald-800'
+                    ? 'bg-amber-50 dark:bg-zinc-800 border-amber-300 dark:border-zinc-700 text-amber-900 dark:text-amber-300 ring-1 ring-amber-400'
                     : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                 }`}
               >
@@ -96,18 +97,59 @@ export const SettingsModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => theme === 'light' && toggleTheme()}
-                className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 transition-all ${
+                className={`p-2.5 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                   theme === 'dark'
-                    ? 'bg-emerald-950 border-emerald-700 text-emerald-200 ring-1 ring-emerald-700'
+                    ? 'bg-zinc-900 text-zinc-100 border-zinc-700 ring-1 ring-zinc-500'
                     : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                 }`}
               >
-                <Moon className="w-4 h-4 text-emerald-400 shrink-0" />
+                <Moon className="w-4 h-4 text-purple-400 shrink-0" />
                 <div>
                   <p className="text-xs font-bold">High-Contrast</p>
                   <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">Late-Night Dark</p>
                 </div>
               </button>
+            </div>
+          </div>
+
+          {/* Dynamic Accent Color Theme */}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <Palette className="w-3.5 h-3.5 text-brand-primary" />
+                Accent Theme Palette
+              </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-light text-brand-primary">
+                {ACCENT_THEMES.find((a) => a.id === accentColor)?.name}
+              </span>
+            </label>
+
+            <div className="grid grid-cols-3 gap-1.5">
+              {ACCENT_THEMES.map((item) => {
+                const isSelected = accentColor === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => setAccentColor(item.id)}
+                    className={`
+                      p-2 rounded-lg border text-left flex items-center gap-2 transition-all cursor-pointer
+                      ${
+                        isSelected
+                          ? `${item.bgColor} ${item.borderColor} ring-2 ring-brand-primary font-bold shadow-2xs`
+                          : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
+                      }
+                    `}
+                  >
+                    <div className={`w-3.5 h-3.5 rounded-full ${item.dotColor} shrink-0 flex items-center justify-center`}>
+                      {isSelected && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                    </div>
+                    <span className="text-[11px] font-semibold text-zinc-800 dark:text-zinc-200 truncate">
+                      {item.name.split(' ')[0]}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

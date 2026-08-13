@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { PaperProvider, usePaperContext } from './context/PaperContext';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
+import { FlowingBackground } from './components/common/FlowingBackground';
 import { UploadModal } from './components/common/UploadModal';
 import { SettingsModal } from './components/common/SettingsModal';
 import { ResearchReportModal } from './components/common/ResearchReportModal';
@@ -46,21 +48,34 @@ const MainContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900 transition-colors">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-zinc-950/80 text-zinc-900 dark:text-zinc-100 flex flex-col font-sans antialiased selection:bg-lime-200 selection:text-lime-950 transition-colors relative overflow-x-hidden">
+      {/* Animated Flowing Water / Paper Background Layer */}
+      <FlowingBackground />
+
       {/* Top Header */}
       <Header onOpenMobileMenu={() => setIsMobileOpen(true)} />
 
       {/* Main Body Layout */}
-      <div className="flex-1 max-w-7xl w-full mx-auto flex">
+      <div className="flex-1 max-w-7xl w-full mx-auto flex relative z-10">
         {/* Sidebar */}
         <Sidebar
           isMobileOpen={isMobileOpen}
           onCloseMobile={() => setIsMobileOpen(false)}
         />
 
-        {/* Dynamic Page Container */}
+        {/* Dynamic Page Container with 60fps Motion Easing Transitions */}
         <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0 overflow-x-hidden">
-          {renderActiveTab()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 12, scale: 0.99 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -8, scale: 0.99 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {renderActiveTab()}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 

@@ -8,6 +8,8 @@ export type NavigationTab =
   | 'validation'
   | 'project';
 
+export type AccentColor = 'emerald' | 'green' | 'yellow' | 'purple' | 'rose' | 'cyan';
+
 export type WorkflowStepId = 1 | 2 | 3 | 4 | 5 | 6;
 
 export interface WorkflowStep {

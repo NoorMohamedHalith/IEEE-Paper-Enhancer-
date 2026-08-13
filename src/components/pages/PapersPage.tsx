@@ -102,15 +102,15 @@ export const PapersPage: React.FC = () => {
       <WorkflowStepper />
 
       {/* Upload Section */}
-      <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs">
-        <h2 className="text-base font-bold text-zinc-900 mb-1">IEEE Research Paper Import</h2>
-        <p className="text-xs text-zinc-500 mb-5">
+      <div className="glass-panel border border-zinc-200/80 dark:border-zinc-800 rounded-3xl p-6 shadow-md transition-all">
+        <h2 className="text-base font-extrabold text-zinc-900 dark:text-zinc-100 mb-1">IEEE Research Paper Import</h2>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mb-5">
           Upload IEEE PDF files or paste IEEE Xplore / ArXiv links for AI analysis and research gap extraction.
         </p>
 
         {errorMsg && (
-          <div className="mb-4 p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="mb-4 p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-800 dark:text-rose-200 text-xs flex items-center gap-2 font-medium">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-500" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -120,7 +120,7 @@ export const PapersPage: React.FC = () => {
           {/* PDF Drag & Drop Dropzone */}
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-zinc-300 hover:border-emerald-800 bg-zinc-50/50 hover:bg-emerald-50/30 rounded-xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[160px]"
+            className="border-2 border-dashed border-cyan-400/50 hover:border-cyan-500 bg-cyan-500/5 hover:bg-cyan-500/10 rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center min-h-[160px] hover:scale-[1.01] neon-glow-cyan"
           >
             <input
               ref={fileInputRef}
@@ -136,24 +136,24 @@ export const PapersPage: React.FC = () => {
 
             {isLoading ? (
               <div className="py-2">
-                <Loader2 className="w-6 h-6 text-emerald-800 animate-spin mx-auto mb-2" />
-                <p className="text-xs font-semibold text-zinc-800">Processing document...</p>
+                <Loader2 className="w-7 h-7 text-cyan-500 animate-spin mx-auto mb-2" />
+                <p className="text-xs font-bold text-zinc-800 dark:text-zinc-200">Processing document...</p>
               </div>
             ) : (
               <>
-                <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-800 flex items-center justify-center mb-2">
+                <div className="w-11 h-11 rounded-2xl bg-cyan-500/20 text-cyan-500 flex items-center justify-center mb-2 shadow-xs">
                   <Upload className="w-5 h-5" />
                 </div>
-                <h4 className="text-xs font-bold text-zinc-900">Drag & drop IEEE PDF file</h4>
-                <p className="text-[11px] text-zinc-500 mt-1">or click to browse local files</p>
+                <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Drag & drop IEEE PDF file</h4>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">or click to browse local files</p>
               </>
             )}
           </div>
 
           {/* Paste Paper Link Form */}
-          <form onSubmit={handleUrlSubmit} className="flex flex-col justify-between bg-zinc-50/50 rounded-xl p-5 border border-zinc-200">
+          <form onSubmit={handleUrlSubmit} className="flex flex-col justify-between bg-white/40 dark:bg-zinc-900/40 rounded-2xl p-5 border border-zinc-200/80 dark:border-zinc-800 backdrop-blur-md">
             <div>
-              <label className="block text-xs font-bold text-zinc-800 mb-1.5">
+              <label className="block text-xs font-bold text-zinc-800 dark:text-zinc-200 mb-1.5">
                 Paste IEEE Paper URL / DOI
               </label>
               <div className="relative">
@@ -162,9 +162,9 @@ export const PapersPage: React.FC = () => {
                   value={paperUrl}
                   onChange={(e) => setPaperUrl(e.target.value)}
                   placeholder="https://ieeexplore.ieee.org/document/..."
-                  className="w-full pl-9 pr-3 py-2 rounded-lg border border-zinc-300 text-xs focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800 bg-white"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white/80 dark:bg-zinc-900/80 text-zinc-900 dark:text-zinc-100"
                 />
-                <LinkIcon className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
+                <LinkIcon className="w-4 h-4 text-zinc-400 absolute left-3 top-3" />
               </div>
             </div>
 
@@ -172,7 +172,7 @@ export const PapersPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading || !paperUrl.trim()}
-                className="px-4 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 disabled:opacity-50 text-white text-xs font-semibold flex items-center gap-2 ml-auto"
+                className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-hover disabled:opacity-50 text-white text-xs font-bold flex items-center gap-2 ml-auto shadow-md transition-all hover:scale-105 cursor-pointer border border-brand-border"
               >
                 {isLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <LinkIcon className="w-3.5 h-3.5" />}
                 <span>Fetch Paper Link</span>
@@ -184,11 +184,11 @@ export const PapersPage: React.FC = () => {
       </div>
 
       {/* Uploaded Papers List */}
-      <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs">
-        <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-200">
+      <div className="glass-panel border border-zinc-200/80 dark:border-zinc-800 rounded-3xl p-6 shadow-md">
+        <div className="flex items-center justify-between pb-4 mb-4 border-b border-zinc-200 dark:border-zinc-800">
           <div>
-            <h3 className="text-sm font-bold text-zinc-900">Uploaded Research Papers ({papers.length})</h3>
-            <p className="text-xs text-zinc-500">Manage paper documents and launch AI analysis</p>
+            <h3 className="text-sm font-extrabold text-zinc-900 dark:text-zinc-100">Uploaded Research Papers ({papers.length})</h3>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Manage paper documents and launch AI analysis</p>
           </div>
         </div>
 
@@ -207,35 +207,35 @@ export const PapersPage: React.FC = () => {
                 <div
                   key={paper.id}
                   className={`
-                    p-4 rounded-xl border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4
+                    p-4 rounded-2xl border transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4
                     ${
                       isActive
-                        ? 'bg-emerald-50/50 border-emerald-800/60 ring-1 ring-emerald-800/30'
-                        : 'bg-zinc-50/60 border-zinc-200 hover:border-zinc-300'
+                        ? 'bg-cyan-500/10 border-cyan-400/50 neon-glow-cyan shadow-sm'
+                        : 'bg-white/50 dark:bg-zinc-900/50 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700'
                     }
                   `}
                 >
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className="w-9 h-9 rounded-lg bg-white border border-zinc-200 text-emerald-800 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="w-10 h-10 rounded-xl bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-cyan-500 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                       <FileText className="w-5 h-5" />
                     </div>
 
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="text-xs font-bold text-zinc-900 truncate">
+                        <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 truncate">
                           {paper.title}
                         </span>
 
                         {/* Paper Status Badge */}
                         <span
                           className={`
-                            px-2 py-0.5 rounded-full text-[10px] font-semibold border
+                            px-2.5 py-0.5 rounded-full text-[10px] font-bold border
                             ${
                               paper.status === 'Analyzed'
-                                ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
+                                ? 'bg-lime-500/10 text-lime-800 dark:text-lime-300 border-lime-400/40'
                                 : paper.status === 'Analyzing'
-                                ? 'bg-amber-100 text-amber-800 border-amber-200 animate-pulse'
-                                : 'bg-zinc-100 text-zinc-600 border-zinc-200'
+                                ? 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-400/40 animate-pulse'
+                                : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-700'
                             }
                           `}
                         >
@@ -243,13 +243,13 @@ export const PapersPage: React.FC = () => {
                         </span>
 
                         {isActive && (
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-800 text-white">
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-extrabold bg-cyan-500 text-white shadow-xs">
                             Active Context
                           </span>
                         )}
                       </div>
 
-                      <div className="flex items-center gap-3 text-[11px] text-zinc-500 flex-wrap">
+                      <div className="flex items-center gap-3 text-[11px] text-zinc-500 dark:text-zinc-400 flex-wrap">
                         <span>Authors: {paper.authors.join(', ')}</span>
                         <span>•</span>
                         <span>Year: {paper.year}</span>
@@ -268,7 +268,7 @@ export const PapersPage: React.FC = () => {
                     {!isActive && (
                       <button
                         onClick={() => selectActivePaper(paper.id)}
-                        className="px-3 py-1.5 rounded-lg border border-zinc-300 text-xs font-semibold text-zinc-700 hover:bg-white"
+                        className="px-3 py-1.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:bg-white dark:hover:bg-zinc-800 transition-all hover:scale-105 cursor-pointer"
                       >
                         Set Active
                       </button>
@@ -278,7 +278,7 @@ export const PapersPage: React.FC = () => {
                       <button
                         onClick={() => triggerAnalysis(paper.id)}
                         disabled={isAnalyzing}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold flex items-center gap-1.5"
+                        className="px-3.5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-600 text-white text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 shadow-xs cursor-pointer"
                       >
                         <Play className="w-3.5 h-3.5 fill-current" />
                         <span>Analyze</span>
@@ -291,7 +291,7 @@ export const PapersPage: React.FC = () => {
                           selectActivePaper(paper.id);
                           setActiveTab('analysis');
                         }}
-                        className="px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-center gap-1"
+                        className="px-3.5 py-1.5 rounded-xl bg-lime-500/10 border border-lime-400/40 text-lime-900 dark:text-lime-300 text-xs font-bold flex items-center gap-1 transition-all hover:scale-105 cursor-pointer"
                       >
                         <span>View Results</span>
                         <ArrowRight className="w-3.5 h-3.5" />
@@ -300,7 +300,7 @@ export const PapersPage: React.FC = () => {
 
                     <button
                       onClick={() => removePaper(paper.id)}
-                      className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-400/30 text-xs font-bold flex items-center gap-1.5 transition-all hover:scale-105 cursor-pointer"
                       title="Remove paper from workspace"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
