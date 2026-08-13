@@ -28,9 +28,38 @@ export const WORKFLOW_STEPS: WorkflowStep[] = [
   { id: 6, name: 'Enhanced Project', tab: 'project', description: 'Generate enhanced proposal & architecture' },
 ];
 
+export type WorkflowStep17Status = 'LOCKED' | 'AVAILABLE' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'SKIPPED';
+
+export interface WorkflowEngineStep {
+  id: number; // 1 to 17
+  stepKey: string;
+  name: string;
+  stage: NavigationTab;
+  status: WorkflowStep17Status;
+  description: string;
+  input?: any;
+  output?: any;
+  validation?: {
+    isValid: boolean;
+    score?: number;
+    warnings?: string[];
+  };
+  timestamp?: string;
+  error?: string;
+}
+
+export interface PDFPageChunk {
+  chunkId: string;
+  pageNum: number;
+  section: string;
+  paragraphIndex: number;
+  text: string;
+  sourceLocation: string;
+}
+
 export type PaperStatus = 'Awaiting analysis' | 'Analyzing' | 'Analyzed' | 'Failed';
 
-export type EvidenceSourceType = 'EXPLICIT' | 'INFERRED';
+export type EvidenceSourceType = 'EXPLICIT' | 'DERIVED' | 'INFERRED';
 
 export interface PaperEvidence {
   id: string;
@@ -40,6 +69,31 @@ export interface PaperEvidence {
   chunkId: string;
   quoteOrExcerpt: string;
   sourceType: EvidenceSourceType;
+  confidence?: 'High' | 'Medium' | 'Low';
+  isVerified?: boolean;
+}
+
+export interface ClaimVerificationResult {
+  claimId: string;
+  claimText: string;
+  evidenceId?: string;
+  isVerified: boolean;
+  status: 'VERIFIED' | 'UNVERIFIED';
+  failureReasons?: string[];
+  matchedQuote?: string;
+  matchedPage?: number;
+  confidenceScore?: number;
+  sourceLocation?: string;
+  pageNumber?: number;
+  matchedSnippet?: string;
+  auditMessage?: string;
+}
+
+export interface TechSuitabilityScore {
+  technology: string;
+  suitabilityScore: number;
+  fitStatus: 'Suitable' | 'Marginally Suitable' | 'Not Recommended';
+  justification: string;
 }
 
 export interface GroundedLimitation {
@@ -51,21 +105,26 @@ export interface GroundedLimitation {
   page: string;
   section: string;
   confidence: 'High' | 'Medium' | 'Low';
+  isVerified?: boolean;
 }
 
 export type GroundedGapType =
+  | 'PERFORMANCE'
+  | 'SCALABILITY'
+  | 'ACCURACY'
+  | 'ROBUSTNESS'
+  | 'SECURITY'
+  | 'USABILITY'
+  | 'GENERALIZATION'
+  | 'REAL_TIME'
+  | 'RESOURCE_EFFICIENCY'
+  | 'DATA'
+  | 'INTEGRATION'
+  | 'OTHER'
   | 'Technical'
-  | 'Performance'
-  | 'Scalability'
-  | 'Security'
-  | 'Usability'
-  | 'Accuracy'
-  | 'Real-time'
-  | 'Data'
   | 'Architecture'
   | 'Deployment'
-  | 'Evaluation'
-  | 'Generalization';
+  | 'Evaluation';
 
 export interface GroundedResearchGap {
   id: string;
@@ -75,6 +134,7 @@ export interface GroundedResearchGap {
   relatedLimitations: string[];
   gapType: GroundedGapType;
   confidence: 'High' | 'Medium' | 'Low';
+  isVerified?: boolean;
 }
 
 export interface GroundedMethodology {
@@ -93,6 +153,24 @@ export interface GroundedResultMetric {
   source: string;
   page: string;
   evidenceId?: string;
+}
+
+export interface QualityScoreBreakdown {
+  overallScore: number;
+  evidenceCompletenessScore: number;
+  traceabilityCompletenessScore: number;
+  groundingQualityScore: number;
+  workflowCompletenessScore: number;
+  validationCompletenessScore: number;
+  groundingScore?: number;
+  specificityScore?: number;
+  alignmentScore?: number;
+  rigorScore?: number;
+  feasibilityScore?: number;
+  penaltyPoints?: number;
+  reasons?: string[];
+  grade?: string;
+  warnings: string[];
 }
 
 export interface IEEEPaper {
@@ -120,6 +198,12 @@ export interface IEEEPaper {
     avgCharsPerPage: number;
     reason: string;
   };
+  pdfChunks?: PDFPageChunk[];
+  workflowSteps?: WorkflowEngineStep[];
+  qualityScoreBreakdown?: QualityScoreBreakdown;
+  claimVerifications?: ClaimVerificationResult[];
+  technologySuitability?: TechSuitabilityScore[];
+  pdfPageChunks?: PDFPageChunk[];
 }
 
 export type AnalysisProgressStage =
@@ -165,6 +249,10 @@ export interface PaperAnalysis {
   beforeAfterComparison?: BeforeAfterData;
   projectSpec?: EnhancedProjectSpec;
   predictionMetrics?: PredictionMetric[];
+  claimVerifications?: ClaimVerificationResult[];
+  qualityScoreBreakdown?: QualityScoreBreakdown;
+  technologySuitability?: TechSuitabilityScore[];
+  pdfChunks?: PDFPageChunk[];
 }
 
 export interface RelevanceBreakdown {
@@ -266,7 +354,7 @@ export interface WorkspaceSettings {
   autoAnalyzeOnUpload: boolean;
 }
 
-export type ResultState = 'MEASURED' | 'SIMULATED' | 'ESTIMATED' | 'NOT AVAILABLE';
+export type ResultState = 'PAPER_REPORTED' | 'MEASURED' | 'SIMULATED' | 'ESTIMATED' | 'NOT_AVAILABLE' | 'NOT AVAILABLE';
 
 export interface PredictionMetric {
   id: string;

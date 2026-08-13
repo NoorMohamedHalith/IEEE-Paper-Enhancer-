@@ -100,9 +100,9 @@ export const ValidationProgressTracker: React.FC<ValidationProgressTrackerProps>
         progress: hasMeasured ? 100 : 0,
         durationMs: hasMeasured ? 128 : undefined,
         metricLabel: 'Processing Delay',
-        baselineValue: predictionMetrics[0]?.baselineValue || '120 ms',
-        enhancedValue: predictionMetrics[0]?.enhancedValue || '78 ms',
-        improvement: predictionMetrics[0]?.improvement || '35% latency reduction',
+        baselineValue: predictionMetrics[0]?.baselineValue || 'Baseline Latency',
+        enhancedValue: predictionMetrics[0]?.enhancedValue || 'Target Latency',
+        improvement: predictionMetrics[0]?.improvement || 'Pending Live Benchmark',
         details: 'Executes high-resolution client-side performance.now() loop over 500k iterations.',
         timestamp: hasMeasured ? new Date().toLocaleTimeString() : undefined,
         logs: [
@@ -120,15 +120,15 @@ export const ValidationProgressTracker: React.FC<ValidationProgressTrackerProps>
         progress: 100,
         durationMs: 184,
         metricLabel: 'Event Processing Volume',
-        baselineValue: '10,000 evt/s',
-        enhancedValue: '45,000 evt/s',
-        improvement: '3.5x throughput gain',
+        baselineValue: 'Paper Stream Baseline',
+        enhancedValue: 'Lock-Free Ring Buffer',
+        improvement: 'Non-blocking event capacity',
         details: 'Simulated high-volume event burst processing with zero dropped packets or buffer overflows.',
         timestamp: new Date().toLocaleTimeString(),
         logs: [
           'Simulating peak workload queue injection...',
           'Allocating memory lock-free circular ring-buffers...',
-          'Peak throughput verified at 45,000 events/sec.'
+          'Throughput verified against ring-buffer capacity.'
         ]
       },
       {
@@ -140,15 +140,15 @@ export const ValidationProgressTracker: React.FC<ValidationProgressTrackerProps>
         progress: 100,
         durationMs: 96,
         metricLabel: 'F1 Score / Top-1 Accuracy',
-        baselineValue: '82.4%',
-        enhancedValue: '94.1%',
-        improvement: '+11.7% accuracy boost',
+        baselineValue: 'Paper Model Accuracy',
+        enhancedValue: 'Calibrated Residual Model',
+        improvement: 'Error residual tuning',
         details: 'Cross-validated residual errors across multi-layer estimation parameters.',
         timestamp: new Date().toLocaleTimeString(),
         logs: [
           'Fetching ground truth evaluation metrics...',
           'Calculating residual variance across estimation models...',
-          'F1 Score improved from 82.4% to 94.1%.'
+          'F1 Score calibrated across residual parameters.'
         ]
       },
       {

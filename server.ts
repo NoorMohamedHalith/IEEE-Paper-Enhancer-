@@ -301,8 +301,8 @@ Return ONLY the transcribed plain text without commentary.`
       });
     } else {
       results.push(
-        { value: "89.2%", metric: `Baseline Accuracy for ${primaryConcept}`, source: "Paper Text", page: "2", evidenceId: "ev-1" },
-        { value: "118 ms", metric: "Average Processing Latency", source: "Paper Text", page: "3", evidenceId: "ev-2" }
+        { value: "NOT_AVAILABLE", metric: `Baseline Accuracy for ${primaryConcept} (Not explicitly reported in paper text)`, source: "Paper Text", page: "N/A", evidenceId: "ev-1" },
+        { value: "NOT_AVAILABLE", metric: "Average Processing Latency (Not explicitly reported in paper text)", source: "Paper Text", page: "N/A", evidenceId: "ev-2" }
       );
     }
 
@@ -396,7 +396,7 @@ Return ONLY the transcribed plain text without commentary.`
         category: idx % 2 === 0 ? "System Optimization" : "Security & Governance",
         rationale: `Directly mitigates ${lim.title || 'baseline constraint'} by introducing non-blocking asynchronous event handling.`,
         implementationApproach: `Implement a modular TypeScript/Node.js pipeline component (${moduleName}) with lock-free memory buffers and automated telemetry.`,
-        expectedBenefit: `Reduces processing latency by ~40% and eliminates thread blocking under heavy traffic loads.`,
+        expectedBenefit: `Improves stream throughput and non-blocking asynchronous event handling under heavy traffic loads.`,
         feasibility: "High",
         impact: "High",
         relevanceScore: 92 - idx * 4,
@@ -420,7 +420,7 @@ Return ONLY the transcribed plain text without commentary.`
           researchGap: gap.title || "Unaddressed research gap",
           enhancement: `Software Module: ${gap.title || "System Optimization"}`,
           newSoftwareModule: moduleName,
-          validationMetric: "Latency decrease > 35%",
+          validationMetric: "Empirical p99 Latency & Throughput Benchmark",
           isComplete: true
         }
       };

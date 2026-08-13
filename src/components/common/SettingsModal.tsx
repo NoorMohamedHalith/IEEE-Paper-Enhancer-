@@ -153,44 +153,20 @@ export const SettingsModal: React.FC = () => {
             </div>
           </div>
 
-          {/* Database Abstraction Selection */}
+          {/* Database Architecture Provider */}
           <div>
             <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
               <span>Database Architecture Provider</span>
-              <span className="text-[10px] text-zinc-400 font-normal">Local & Cloud DB</span>
+              <span className="text-[10px] text-emerald-800 dark:text-emerald-400 font-bold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-200 dark:border-emerald-800">100% Offline Local</span>
             </label>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => setDbType('local')}
-                className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 ${
-                  dbType === 'local'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/80 border-emerald-800 text-emerald-950 dark:text-emerald-200 ring-1 ring-emerald-800'
-                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
-                }`}
-              >
-                <Database className="w-4 h-4 text-emerald-800 dark:text-emerald-400 shrink-0" />
+            <div className="p-3.5 rounded-xl border border-brand-primary/40 bg-brand-light/30 dark:bg-zinc-900/60 text-xs font-medium space-y-1.5 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <Database className="w-4 h-4 text-brand-primary shrink-0" />
                 <div>
-                  <p className="text-xs font-bold">IndexedDB (Own Local DB)</p>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">On-device standalone DB</p>
+                  <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">IndexedDB (Offline Browser Database)</p>
+                  <p className="text-[11px] text-zinc-600 dark:text-zinc-400">All paper texts, page chunks, analysis records, and audit logs are stored 100% offline inside your browser database without online server requirements.</p>
                 </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setDbType('firestore')}
-                className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 ${
-                  dbType === 'firestore'
-                    ? 'bg-emerald-50 dark:bg-emerald-950/80 border-emerald-800 text-emerald-950 dark:text-emerald-200 ring-1 ring-emerald-800'
-                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
-                }`}
-              >
-                <Database className="w-4 h-4 text-emerald-800 dark:text-emerald-400 shrink-0" />
-                <div>
-                  <p className="text-xs font-bold">Firebase Firestore</p>
-                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">Cloud persistence</p>
-                </div>
-              </button>
+              </div>
             </div>
           </div>
 

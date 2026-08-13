@@ -138,8 +138,8 @@ export const EnhancedProjectPage: React.FC = () => {
         moduleName: rec.traceabilityLink?.newSoftwareModule || 'SoftwareOptimizationWrapper.ts',
         metric: {
           metricName: rec.validationMetric,
-          baselineValue: '120 ms',
-          enhancedValue: '78 ms',
+          baselineValue: 'Baseline Metric',
+          enhancedValue: 'Enhanced Target',
           status: 'ESTIMATED' as ResultState,
         },
       };

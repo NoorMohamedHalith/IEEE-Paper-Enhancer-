@@ -17,7 +17,7 @@ export const WorkflowStepper: React.FC = () => {
           onClick={() => setIsExpanded(!isExpanded)}
           className="text-xs font-semibold text-zinc-600 hover:text-zinc-900 flex items-center gap-1 bg-white border border-zinc-200 px-2.5 py-1 rounded-lg hover:bg-zinc-50 transition-colors shadow-2xs"
         >
-          <span>{isExpanded ? 'Hide Workflow Diagram' : 'Show 10-Step AI Workflow'}</span>
+          <span>{isExpanded ? 'Hide Workflow Diagram' : 'Show 17-Step AI Workflow'}</span>
           {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
         </button>
       </div>

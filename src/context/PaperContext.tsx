@@ -3,6 +3,7 @@ import { IEEEPaper, NavigationTab, AccentColor, WorkflowStepId, WorkspaceSetting
 import { dbService } from '../services/db';
 import { analyzePaperWithAI, generateLocalGroundedAnalysis } from '../services/ai/geminiService';
 import { generateEnhancementRecommendations } from '../services/ai/recommendationEngine';
+import { syncWorkflowFromPaper } from '../services/ai/workflowEngine';
 
 interface ToastNotification {
   id: number;
@@ -427,8 +428,9 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const addPaper = async (paper: IEEEPaper) => {
     recordHistory();
+    const syncedPaper = { ...paper, workflowSteps: syncWorkflowFromPaper(paper) };
     const adapter = dbService.getAdapter();
-    await adapter.savePaper(paper);
+    await adapter.savePaper(syncedPaper);
     const updated = await adapter.getPapers();
     setPapers(updated);
     setActivePaperId(paper.id);
@@ -519,14 +521,15 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       const allRecIds = recs.map((r) => r.id);
 
-      const completedPaper: IEEEPaper = {
+      let completedPaper: IEEEPaper = {
         ...targetPaper,
         status: 'Analyzed',
         analysis: analysisResult,
-        selectedEnhancementIds: targetPaper.selectedEnhancementIds?.length ? targetPaper.selectedEnhancementIds : allRecIds,
-        validatedEnhancementIds: targetPaper.validatedEnhancementIds?.length ? targetPaper.validatedEnhancementIds : allRecIds,
-        projectStatus: 'Proposal Ready',
+        selectedEnhancementIds: targetPaper.selectedEnhancementIds || [],
+        validatedEnhancementIds: targetPaper.validatedEnhancementIds || [],
+        projectStatus: targetPaper.projectStatus || 'In Analysis',
       };
+      completedPaper.workflowSteps = syncWorkflowFromPaper(completedPaper);
 
       await adapter.updatePaper(completedPaper);
       setPapers(await adapter.getPapers());
@@ -555,9 +558,9 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           ...targetPaper,
           status: 'Analyzed',
           analysis: fallbackAnalysis,
-          selectedEnhancementIds: targetPaper.selectedEnhancementIds?.length ? targetPaper.selectedEnhancementIds : allRecIds,
-          validatedEnhancementIds: targetPaper.validatedEnhancementIds?.length ? targetPaper.validatedEnhancementIds : allRecIds,
-          projectStatus: 'Proposal Ready',
+          selectedEnhancementIds: targetPaper.selectedEnhancementIds || [],
+          validatedEnhancementIds: targetPaper.validatedEnhancementIds || [],
+          projectStatus: targetPaper.projectStatus || 'In Analysis',
         };
 
         await adapter.updatePaper(completedPaper);

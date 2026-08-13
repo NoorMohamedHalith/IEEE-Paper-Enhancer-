@@ -6,6 +6,7 @@ import {
   GroundedLimitation,
   PaperEvidence
 } from '../../types';
+import { verifyTraceabilityChain } from './researchIntegrityEngine';
 
 export async function generateEnhancementRecommendations(
   paper: IEEEPaper
@@ -60,14 +61,15 @@ export function generateClientDynamicRecommendations(
   const recommendations: EnhancementRecommendation[] = [];
 
   gaps.forEach((gap, index) => {
-    // Find related limitation and evidence
+    // Find related limitation strictly by ID matching
     const relatedLimitation =
       limitations.find((l) => gap.relatedLimitations?.includes(l.id)) ||
-      limitations[index % limitations.length] ||
+      limitations.find((l) => l.title.toLowerCase().includes(gap.title.toLowerCase().slice(0, 15))) ||
+      limitations[0] ||
       ({
-        id: `lim-${index + 1}`,
-        title: 'System Boundary Constraint',
-        explanation: 'Observed performance bottleneck in evaluation.',
+        id: `unlinked-lim-${gap.id}`,
+        title: 'Unlinked Baseline Constraint',
+        explanation: 'Constraint not explicitly linked to a specific limitation ID.',
         page: '1',
         section: 'Methodology'
       } as GroundedLimitation);
@@ -192,7 +194,7 @@ function deriveRecommendationDetails(
   const textTitle = (paper.title + ' ' + gap.title + ' ' + gap.explanation).toLowerCase();
 
   // Category selection rules
-  if (textTitle.includes('security') || textTitle.includes('privacy') || gapType === 'Security') {
+  if (textTitle.includes('security') || textTitle.includes('privacy') || (gapType as string) === 'SECURITY' || (gapType as string) === 'Security') {
     return {
       title: `Zero-Trust Cryptographic Pipeline for ${gap.title.slice(0, 30)}`,
       category: 'Security',
@@ -208,7 +210,7 @@ function deriveRecommendationDetails(
     };
   }
 
-  if (textTitle.includes('latency') || textTitle.includes('real-time') || textTitle.includes('speed') || gapType === 'Real-time' || gapType === 'Performance') {
+  if (textTitle.includes('latency') || textTitle.includes('real-time') || textTitle.includes('speed') || (gapType as string) === 'REAL_TIME' || (gapType as string) === 'PERFORMANCE' || (gapType as string) === 'Real-time' || (gapType as string) === 'Performance') {
     return {
       title: `Asynchronous Ring-Buffer & Stream Optimization for ${gap.title.slice(0, 30)}`,
       category: 'Optimization',
@@ -224,7 +226,7 @@ function deriveRecommendationDetails(
     };
   }
 
-  if (textTitle.includes('accuracy') || textTitle.includes('model') || textTitle.includes('detection') || textTitle.includes('predict') || gapType === 'Accuracy') {
+  if (textTitle.includes('accuracy') || textTitle.includes('model') || textTitle.includes('detection') || textTitle.includes('predict') || (gapType as string) === 'ACCURACY' || (gapType as string) === 'Accuracy') {
     return {
       title: `Ensemble Residual Refinement Module for ${gap.title.slice(0, 30)}`,
       category: 'AI / Machine Learning',
@@ -240,7 +242,7 @@ function deriveRecommendationDetails(
     };
   }
 
-  if (textTitle.includes('sensor') || textTitle.includes('iot') || textTitle.includes('edge') || textTitle.includes('hardware') || gapType === 'Deployment') {
+  if (textTitle.includes('sensor') || textTitle.includes('iot') || textTitle.includes('edge') || textTitle.includes('hardware') || (gapType as string) === 'Deployment') {
     return {
       title: `Virtual Sensor Telemetry & Edge Simulator Framework`,
       category: 'Edge Computing',
@@ -256,7 +258,7 @@ function deriveRecommendationDetails(
     };
   }
 
-  if (textTitle.includes('data') || textTitle.includes('dataset') || textTitle.includes('missing') || gapType === 'Data') {
+  if (textTitle.includes('data') || textTitle.includes('dataset') || textTitle.includes('missing') || (gapType as string) === 'DATA' || (gapType as string) === 'Data') {
     return {
       title: `Synthetic Data Augmentation & Imputation Engine for ${gap.title.slice(0, 30)}`,
       category: 'Analytics',

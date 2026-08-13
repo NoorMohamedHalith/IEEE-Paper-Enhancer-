@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { usePaperContext } from '../../context/PaperContext';
 import { WorkflowStepper } from '../layout/WorkflowStepper';
+import { ResearchIntegrityPanel } from '../common/ResearchIntegrityPanel';
 import { BeforeAfterComparison } from '../common/BeforeAfterComparison';
 import { AnimatedCounter } from '../common/AnimatedCounter';
-import { FileText, AlertCircle, Sparkles, FolderGit2, Upload, Link as LinkIcon, ArrowRight, Play, ShieldCheck, HelpCircle, Zap, Cpu, Compass } from 'lucide-react';
+import { FileText, AlertCircle, Sparkles, FolderGit2, Upload, Link as LinkIcon, ArrowRight, Play, ShieldCheck, HelpCircle, Zap, Cpu, Compass, Database } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
   const { papers, activePaper, setIsUploadModalOpen, setActiveTab, triggerAnalysis, isAnalyzing } = usePaperContext();
@@ -45,6 +46,9 @@ export const DashboardPage: React.FC = () => {
       
       {/* Workflow Stepper */}
       <WorkflowStepper />
+
+      {/* Dynamic Research Integrity Panel */}
+      <ResearchIntegrityPanel />
 
       {/* Demo Mode / Hero Spotlight Banner when NO paper exists */}
       {!hasPapers ? (
@@ -112,10 +116,16 @@ export const DashboardPage: React.FC = () => {
         <div className="rounded-3xl glass-panel border border-lime-500/30 dark:border-lime-500/40 p-6 shadow-xl neon-glow-lime hover-lift-glow">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-1.5">
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                 <span className="px-3 py-0.5 rounded-full text-[10px] font-extrabold bg-lime-500/20 text-lime-800 dark:text-lime-300 border border-lime-400/50 uppercase tracking-wider">
                   Active Paper Context
                 </span>
+                {activePaper?.isSample && (
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-500/20 text-amber-900 dark:text-amber-200 border border-amber-400/50 uppercase tracking-wider flex items-center gap-1">
+                    <Database className="w-3 h-3 text-amber-600" />
+                    DEMO DATA (Sample Paper Active)
+                  </span>
+                )}
                 <span className="text-xs text-zinc-400">|</span>
                 <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Uploaded {activePaper?.uploadedAt ? new Date(activePaper.uploadedAt).toLocaleDateString() : 'Today'}</span>
               </div>

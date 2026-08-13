@@ -54,9 +54,9 @@ export const ValidationPage: React.FC = () => {
         };
       }
 
-      const baselineVal = idx % 2 === 0 ? '120 ms' : '82%';
-      const enhancedVal = idx % 2 === 0 ? '78 ms' : '94%';
-      const improvementVal = idx % 2 === 0 ? '35% reduction in p99 latency' : '12% absolute accuracy gain';
+      const baselineVal = 'Paper Baseline Metric (Pending Benchmark)';
+      const enhancedVal = 'Target Module Performance';
+      const improvementVal = rec.validationMetric || 'Measured during live benchmark execution';
 
       return {
         id: `pred-metric-${rec.id}`,
@@ -124,8 +124,8 @@ export const ValidationPage: React.FC = () => {
     const matchingMetric =
       predictionMetrics.find((m) => m.enhancementId === rec.id) || {
         metricName: rec.validationMetric,
-        baselineValue: '120 ms',
-        enhancedValue: '78 ms',
+        baselineValue: 'Baseline Metric',
+        enhancedValue: 'Enhanced Target',
         status: 'ESTIMATED'
       };
 

@@ -6,6 +6,7 @@ import { EmptyStateCard } from '../common/EmptyStateCard';
 import { EvidenceModal } from '../common/EvidenceModal';
 import { InsightFeedbackControl } from '../common/InsightFeedbackControl';
 import { AnalysisDashboard } from '../analysis/AnalysisDashboard';
+import { QualityScoreDashboard } from '../common/QualityScoreDashboard';
 import { BeforeAfterComparison } from '../common/BeforeAfterComparison';
 import { ArchitectureGraph } from '../common/ArchitectureGraph';
 import { PaperEvidence } from '../../types';
@@ -292,7 +293,10 @@ export const PaperAnalysisPage: React.FC = () => {
 
       {/* Analytics Summary Dashboard */}
       {(activeTabSection === 'all' || activeTabSection === 'dashboard') && (
-        <AnalysisDashboard analysis={analysis} />
+        <div className="space-y-6">
+          <QualityScoreDashboard />
+          <AnalysisDashboard analysis={analysis} />
+        </div>
       )}
 
       {/* Main Analysis Sections */}
