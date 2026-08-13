@@ -14,7 +14,7 @@ export const ResearchGapsPage: React.FC = () => {
   const evidences = activePaper?.analysis?.evidences || [];
   const approvedGapIds = activePaper?.approvedGapIds || [];
 
-  const findEvidence = (id?: string) => evidences.find((e) => e.id === id) || evidences[0] || null;
+  const findEvidence = (id?: string) => (id ? evidences.find((e) => e.id === id) || null : null);
 
   if (gaps.length === 0) {
     return (

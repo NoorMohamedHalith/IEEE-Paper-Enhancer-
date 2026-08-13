@@ -5,12 +5,12 @@ import { FileText, ShieldAlert, Sparkles, Zap, Layers, CheckCircle2, ChevronRigh
 
 export interface TraceabilityChainItem {
   id: string;
-  evidence: PaperEvidence;
-  limitation: GroundedLimitation;
-  gap: GroundedResearchGap;
-  enhancement: EnhancementRecommendation;
-  moduleName: string;
-  metric: PredictionMetric | { metricName: string; baselineValue: string; enhancedValue: string; status: string };
+  evidence?: PaperEvidence;
+  limitation?: GroundedLimitation;
+  gap?: GroundedResearchGap;
+  enhancement?: EnhancementRecommendation;
+  moduleName?: string;
+  metric?: PredictionMetric | { metricName: string; baselineValue: string; enhancedValue: string; status: string };
 }
 
 interface InteractiveTraceabilityChainProps {
@@ -126,13 +126,19 @@ export const InteractiveTraceabilityChain: React.FC<InteractiveTraceabilityChain
                 Paper Evidence Passage
               </span>
               <span className="text-[10px] font-mono bg-zinc-200 text-zinc-700 px-2 py-0.5 rounded">
-                Section: {currentItem.evidence.section || 'Methodology'} | Page {currentItem.evidence.page || 'N/A'}
+                Section: {currentItem.evidence?.section || 'Methodology'} | Page {currentItem.evidence?.page || 'N/A'}
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-white border border-zinc-200 italic text-xs text-zinc-800 leading-relaxed">
-              "{sanitizeEvidenceQuote(currentItem.evidence.quoteOrExcerpt)}"
-            </div>
+            {currentItem.evidence ? (
+              <div className="p-4 rounded-xl bg-white border border-zinc-200 italic text-xs text-zinc-800 leading-relaxed">
+                "{sanitizeEvidenceQuote(currentItem.evidence.quoteOrExcerpt)}"
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800">
+                TRACEABILITY INCOMPLETE: No direct evidence link associated with this chain item.
+              </div>
+            )}
 
             <p className="text-[11px] text-zinc-500">
               Source: Grounded direct extraction from uploaded IEEE paper text.
@@ -148,14 +154,20 @@ export const InteractiveTraceabilityChain: React.FC<InteractiveTraceabilityChain
                 Original System Limitation
               </span>
               <span className="text-[10px] font-semibold bg-rose-100 text-rose-800 px-2 py-0.5 rounded">
-                Grounded Limitation
+                {currentItem.limitation ? 'Grounded Limitation' : 'UNLINKED'}
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-white border border-rose-200 text-xs text-zinc-800 space-y-1">
-              <p className="font-bold text-rose-950 text-sm">{currentItem.limitation.title}</p>
-              <p className="text-zinc-600 leading-relaxed">{currentItem.limitation.explanation}</p>
-            </div>
+            {currentItem.limitation ? (
+              <div className="p-4 rounded-xl bg-white border border-rose-200 text-xs text-zinc-800 space-y-1">
+                <p className="font-bold text-rose-950 text-sm">{currentItem.limitation.title}</p>
+                <p className="text-zinc-600 leading-relaxed">{currentItem.limitation.explanation}</p>
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800">
+                TRACEABILITY INCOMPLETE: Limitation link not found for this enhancement.
+              </div>
+            )}
           </div>
         )}
 
@@ -167,14 +179,20 @@ export const InteractiveTraceabilityChain: React.FC<InteractiveTraceabilityChain
                 Identified Research Gap
               </span>
               <span className="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">
-                Gap Type: {currentItem.gap.gapType || 'Technical'}
+                Gap Type: {currentItem.gap?.gapType || 'Technical'}
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-white border border-amber-200 text-xs text-zinc-800 space-y-1">
-              <p className="font-bold text-amber-950 text-sm">{currentItem.gap.title}</p>
-              <p className="text-zinc-600 leading-relaxed">{currentItem.gap.explanation}</p>
-            </div>
+            {currentItem.gap ? (
+              <div className="p-4 rounded-xl bg-white border border-amber-200 text-xs text-zinc-800 space-y-1">
+                <p className="font-bold text-amber-950 text-sm">{currentItem.gap.title}</p>
+                <p className="text-zinc-600 leading-relaxed">{currentItem.gap.explanation}</p>
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800">
+                TRACEABILITY INCOMPLETE: Research gap link not found for this enhancement.
+              </div>
+            )}
           </div>
         )}
 
@@ -186,15 +204,21 @@ export const InteractiveTraceabilityChain: React.FC<InteractiveTraceabilityChain
                 Selected Software Enhancement
               </span>
               <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
-                Relevance Score: {currentItem.enhancement.relevanceScore}%
+                Relevance Score: {currentItem.enhancement?.relevanceScore || 0}%
               </span>
             </div>
 
-            <div className="p-4 rounded-xl bg-white border border-emerald-200 text-xs text-zinc-800 space-y-2">
-              <p className="font-bold text-emerald-950 text-sm">{currentItem.enhancement.title}</p>
-              <p className="text-zinc-600 leading-relaxed">{currentItem.enhancement.rationale}</p>
-              <p className="text-[#064E3B] font-semibold">Approach: {currentItem.enhancement.implementationApproach}</p>
-            </div>
+            {currentItem.enhancement ? (
+              <div className="p-4 rounded-xl bg-white border border-emerald-200 text-xs text-zinc-800 space-y-2">
+                <p className="font-bold text-emerald-950 text-sm">{currentItem.enhancement.title}</p>
+                <p className="text-zinc-600 leading-relaxed">{currentItem.enhancement.rationale}</p>
+                <p className="text-[#064E3B] font-semibold">Approach: {currentItem.enhancement.implementationApproach}</p>
+              </div>
+            ) : (
+              <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-800">
+                TRACEABILITY INCOMPLETE: Software enhancement module not found.
+              </div>
+            )}
           </div>
         )}
 

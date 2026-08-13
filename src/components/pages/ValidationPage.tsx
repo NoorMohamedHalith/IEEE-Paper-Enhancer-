@@ -110,17 +110,10 @@ export const ValidationPage: React.FC = () => {
   const gaps = analysis?.researchGaps || [];
   const evidences = analysis?.evidences || [];
 
-  const traceabilityChainItems: TraceabilityChainItem[] = (recommendations || []).map((rec, idx) => {
-    const matchingLimitation =
-      limitations.find((l) => l.id === rec.limitationId) ||
-      limitations[idx] ||
-      limitations[0];
-    const matchingGap =
-      gaps.find((g) => g.id === rec.researchGapId) ||
-      gaps[0];
-    const matchingEvidence =
-      evidences.find((e) => rec.evidenceIds?.includes(e.id)) ||
-      evidences[0];
+  const traceabilityChainItems: TraceabilityChainItem[] = (recommendations || []).map((rec) => {
+    const matchingLimitation = limitations.find((l) => l.id === rec.limitationId);
+    const matchingGap = gaps.find((g) => g.id === rec.researchGapId);
+    const matchingEvidence = evidences.find((e) => rec.evidenceIds?.includes(e.id));
     const matchingMetric =
       predictionMetrics.find((m) => m.enhancementId === rec.id) || {
         metricName: rec.validationMetric,
@@ -140,21 +133,21 @@ export const ValidationPage: React.FC = () => {
     };
   });
 
-  // Practical Validation Plan Items
+  // Practical Validation Plan Items derived from enhancements
   const validationPlanItems: ValidationPlanItem[] = [
     {
       testType: 'Latency benchmark',
-      description: 'Microsecond p99 latency measurement under high-frequency stream processing.',
+      description: 'Microsecond latency measurement under stream processing.',
       metric: 'Processing Time (ms)',
       method: 'Client performance.now() benchmark runner',
-      status: predictionMetrics[0]?.status || 'ESTIMATED'
+      status: predictionMetrics[0]?.status || 'READY'
     },
     {
       testType: 'Throughput benchmark',
-      description: 'Peak event processing volume without queue drop or buffer memory overflow.',
+      description: 'Event processing volume without queue drop or buffer memory overflow.',
       metric: 'Events / Second',
       method: 'Lock-free event ring-buffer stress test',
-      status: predictionMetrics[1]?.status || 'SIMULATED'
+      status: predictionMetrics[1]?.status || 'READY'
     },
     {
       testType: 'Accuracy evaluation',
@@ -165,10 +158,10 @@ export const ValidationPage: React.FC = () => {
     },
     {
       testType: 'Security test',
-      description: 'Zero-trust AES-256 GCM token integrity and payload tamper prevention audit.',
+      description: 'AES-256 GCM token integrity and payload tamper prevention audit.',
       metric: 'Security Audit Pass Rate',
       method: 'Automated cryptographic signature check',
-      status: 'MEASURED'
+      status: 'READY'
     }
   ];
 

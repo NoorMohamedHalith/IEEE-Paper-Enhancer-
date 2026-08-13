@@ -102,7 +102,7 @@ export const EnhancementsPage: React.FC = () => {
   const handleViewEvidence = (rec: EnhancementRecommendation) => {
     if (!currentPaper?.analysis?.evidences) return;
     const evidences = currentPaper.analysis.evidences;
-    const ev = evidences.find((e) => rec.evidenceIds.includes(e.id)) || evidences[0] || null;
+    const ev = evidences.find((e) => rec.evidenceIds?.includes(e.id)) || null;
     setSelectedEvidence(ev);
   };
 

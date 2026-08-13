@@ -57,14 +57,22 @@ export function validateEvidenceQuote(
     return { isGrounded: true, confidence: 'High', matchedSnippet: quote };
   }
 
-  // Significant word sequence check (fuzzy fallback for whitespace differences)
-  const words = cleanQuote.split(/\s+/).filter((w) => w.length > 3);
-  if (words.length > 3) {
-    const matchedCount = words.filter((w) => cleanPaper.includes(w)).length;
-    const matchRatio = matchedCount / words.length;
+  // Normalized whitespace substring check
+  const normPaper = cleanPaper.replace(/\s+/g, ' ');
+  const normQuote = cleanQuote.replace(/\s+/g, ' ');
+  if (normPaper.includes(normQuote)) {
+    return { isGrounded: true, confidence: 'High', matchedSnippet: quote };
+  }
 
-    if (matchRatio >= 0.85) {
-      return { isGrounded: true, confidence: 'Medium' };
+  // Contiguous phrase sequence match (at least 4-5 consecutive words in order)
+  const words = normQuote.split(/\s+/).filter((w) => w.length > 2);
+  if (words.length >= 4) {
+    const windowSize = Math.min(5, words.length);
+    for (let i = 0; i <= words.length - windowSize; i++) {
+      const phrase = words.slice(i, i + windowSize).join(' ');
+      if (normPaper.includes(phrase)) {
+        return { isGrounded: true, confidence: 'Medium', matchedSnippet: phrase };
+      }
     }
   }
 
@@ -95,8 +103,9 @@ export function verifyAllPaperClaims(paper: IEEEPaper): ClaimVerificationResult[
     }
 
     const pageNum = parseInt(ev.page, 10);
-    if (!isNaN(pageNum) && paper.analysis && pageNum > 50) {
-      reasons.push(`Page number ${ev.page} exceeds expected document bounds`);
+    const maxDocPages = paper.numPages || 50;
+    if (!isNaN(pageNum) && pageNum > maxDocPages) {
+      reasons.push(`Page number ${ev.page} exceeds actual document bounds (${maxDocPages} pages)`);
     }
 
     const isVerified = reasons.length === 0;

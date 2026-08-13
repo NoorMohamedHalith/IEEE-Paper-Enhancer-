@@ -140,10 +140,12 @@ export const ResearchIntegrityPanel: React.FC<{ className?: string }> = ({ class
         <div className="p-2.5 rounded-xl bg-zinc-900 text-white border border-zinc-800 text-center space-y-0.5">
           <span className="text-[10px] font-bold text-zinc-400 block uppercase">Quality Score</span>
           <span className="text-sm font-extrabold text-emerald-400 block">
-            {activePaper.qualityScoreBreakdown?.overallScore || 90} / 100
+            {activePaper.qualityScoreBreakdown?.overallScore !== undefined
+              ? `${activePaper.qualityScoreBreakdown.overallScore} / 100`
+              : 'NOT CALCULATED'}
           </span>
           <span className="text-[9px] font-bold text-zinc-300 block">
-            GRADE {activePaper.qualityScoreBreakdown?.grade || 'A'}
+            GRADE {activePaper.qualityScoreBreakdown?.grade || 'N/A'}
           </span>
         </div>
       </div>

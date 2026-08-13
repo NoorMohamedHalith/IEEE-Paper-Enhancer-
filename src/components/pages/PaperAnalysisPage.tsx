@@ -180,7 +180,7 @@ export const PaperAnalysisPage: React.FC = () => {
   const { analysis } = activePaper;
   const evidences = analysis.evidences || [];
 
-  const findEvidence = (id?: string) => evidences.find((e) => e.id === id) || evidences[0] || null;
+  const findEvidence = (id?: string) => (id ? evidences.find((e) => e.id === id) || null : null);
 
   const handleExportJSON = () => {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(analysis, null, 2));

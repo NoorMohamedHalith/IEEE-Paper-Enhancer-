@@ -64,25 +64,12 @@ export function generateClientDynamicRecommendations(
     // Find related limitation strictly by ID matching
     const relatedLimitation =
       limitations.find((l) => gap.relatedLimitations?.includes(l.id)) ||
-      limitations.find((l) => l.title.toLowerCase().includes(gap.title.toLowerCase().slice(0, 15))) ||
-      limitations[0] ||
-      ({
-        id: `unlinked-lim-${gap.id}`,
-        title: 'Unlinked Baseline Constraint',
-        explanation: 'Constraint not explicitly linked to a specific limitation ID.',
-        page: '1',
-        section: 'Methodology'
-      } as GroundedLimitation);
+      limitations.find((l) => l.title.toLowerCase().includes(gap.title.toLowerCase().slice(0, 15)));
 
     const relatedEvidences = evidences.filter(
-      (e) => gap.evidenceIds?.includes(e.id) || relatedLimitation.evidenceIds?.includes(e.id)
+      (e) => gap.evidenceIds?.includes(e.id) || (relatedLimitation && relatedLimitation.evidenceIds?.includes(e.id))
     );
-    const primaryEvidence = relatedEvidences[0] || evidences[0] || ({
-      id: `ev-gen-${index + 1}`,
-      page: relatedLimitation.page || '1',
-      section: relatedLimitation.section || 'General',
-      quoteOrExcerpt: 'Passage demonstrating constraint in original paper.'
-    } as PaperEvidence);
+    const primaryEvidence = relatedEvidences[0];
 
     // Negative Recommendation Check: If evidence is missing or confidence is low and gap is vague
     const hasInsufficientEvidence = !relatedEvidences.length && gap.confidence === 'Low';
@@ -116,8 +103,8 @@ export function generateClientDynamicRecommendations(
         isNoStrongEnhancement: true,
         noEnhancementReason: 'Insufficient grounded evidence in source paper to construct a verified software module.',
         traceabilityLink: {
-          paperEvidence: primaryEvidence.quoteOrExcerpt || 'N/A',
-          limitation: relatedLimitation.title,
+          paperEvidence: primaryEvidence?.quoteOrExcerpt || 'N/A',
+          limitation: relatedLimitation?.title || 'Unlinked Constraint',
           researchGap: gap.title,
           enhancement: 'None recommended',
           newSoftwareModule: 'None',
@@ -142,7 +129,7 @@ export function generateClientDynamicRecommendations(
     const recommendation: EnhancementRecommendation = {
       id: `rec-${paper.id}-${gap.id}-${index + 1}`,
       paperId: paper.id,
-      limitationId: relatedLimitation.id,
+      limitationId: relatedLimitation?.id || '',
       researchGapId: gap.id,
       title: recData.title,
       category: recData.category,
@@ -186,19 +173,20 @@ export function generateClientDynamicRecommendations(
 function deriveRecommendationDetails(
   paper: IEEEPaper,
   gap: GroundedResearchGap,
-  limitation: GroundedLimitation,
-  evidence: PaperEvidence,
-  idx: number
+  limitation?: GroundedLimitation,
+  evidence?: PaperEvidence,
+  idx: number = 0
 ) {
   const gapType = gap.gapType || 'Technical';
   const textTitle = (paper.title + ' ' + gap.title + ' ' + gap.explanation).toLowerCase();
+  const limTitle = limitation?.title || 'Baseline System Constraint';
 
   // Category selection rules
   if (textTitle.includes('security') || textTitle.includes('privacy') || (gapType as string) === 'SECURITY' || (gapType as string) === 'Security') {
     return {
       title: `Zero-Trust Cryptographic Pipeline for ${gap.title.slice(0, 30)}`,
       category: 'Security',
-      rationale: `Directly mitigates ${limitation.title} by embedding lightweight software encryption and fine-grained access tokens into data serialization layers.`,
+      rationale: `Directly mitigates ${limTitle} by embedding lightweight software encryption and fine-grained access tokens into data serialization layers.`,
       implementationApproach: `Implement a WebCrypto / AES-256 GCM token manager wrapper around API data payloads without modifying underlying database schemas.`,
       expectedBenefit: `Secures data exchange with zero architectural overhead and protects against unauthorized payload tampering.`,
       feasibility: 'High' as const,
@@ -214,7 +202,7 @@ function deriveRecommendationDetails(
     return {
       title: `Asynchronous Ring-Buffer & Stream Optimization for ${gap.title.slice(0, 30)}`,
       category: 'Optimization',
-      rationale: `Addresses the throughput bottleneck identified in ${limitation.title} by decoupling input ingest from heavy processing tasks using dynamic batching.`,
+      rationale: `Addresses the throughput bottleneck identified in ${limTitle} by decoupling input ingest from heavy processing tasks using dynamic batching.`,
       implementationApproach: `Construct an in-memory lock-free dynamic event queue in Node.js/TypeScript that dynamically coalesces incoming requests into batch micro-chunks.`,
       expectedBenefit: `Reduces p99 latency by ~40% and prevents frame drops during peak event spikes.`,
       feasibility: 'High' as const,
@@ -230,7 +218,7 @@ function deriveRecommendationDetails(
     return {
       title: `Ensemble Residual Refinement Module for ${gap.title.slice(0, 30)}`,
       category: 'AI / Machine Learning',
-      rationale: `Directly targets ${limitation.title} by layering an adaptive error-residual calibration algorithm on top of baseline inference outputs.`,
+      rationale: `Directly targets ${limTitle} by layering an adaptive error-residual calibration algorithm on top of baseline inference outputs.`,
       implementationApproach: `Deploy a lightweight client-side ONNX / TensorFlow.js inference pipeline that post-processes predictions using weighted ensemble confidence scores.`,
       expectedBenefit: `Boosts prediction accuracy and F1 score while maintaining fast execution time.`,
       feasibility: 'High' as const,
@@ -246,7 +234,7 @@ function deriveRecommendationDetails(
     return {
       title: `Virtual Sensor Telemetry & Edge Simulator Framework`,
       category: 'Edge Computing',
-      rationale: `Solves physical hardware dependencies in ${limitation.title} by providing a software-only virtual IoT telemetry engine that synthesizes realistic high-frequency sensor streams.`,
+      rationale: `Solves physical hardware dependencies in ${limTitle} by providing a software-only virtual IoT telemetry engine that synthesizes realistic high-frequency sensor streams.`,
       implementationApproach: `Build a configurable synthetic data generator using stochastic Markov chain processes to simulate multi-channel physical sensor inputs in software.`,
       expectedBenefit: `Enables 100% software-only validation, zero hardware cost, and deterministic stress testing under edge network loss scenarios.`,
       feasibility: 'High' as const,
@@ -262,7 +250,7 @@ function deriveRecommendationDetails(
     return {
       title: `Synthetic Data Augmentation & Imputation Engine for ${gap.title.slice(0, 30)}`,
       category: 'Analytics',
-      rationale: `Resolves dataset sparsity cited in ${limitation.title} by executing K-Nearest Neighbor / Copula-based synthetic interpolation on missing feature columns.`,
+      rationale: `Resolves dataset sparsity cited in ${limTitle} by executing K-Nearest Neighbor / Copula-based synthetic interpolation on missing feature columns.`,
       implementationApproach: `Write a pure TypeScript data imputation worker that identifies corrupted or missing feature fields and injects statistical synthetic interpolations.`,
       expectedBenefit: `Increases usable dataset coverage to 100% and eliminates model bias caused by dropped records.`,
       feasibility: 'High' as const,
@@ -278,7 +266,7 @@ function deriveRecommendationDetails(
   return {
     title: `Adaptive Rule-Based Workflow & Fault-Tolerant Engine for ${gap.title.slice(0, 30)}`,
     category: idx % 2 === 0 ? 'Software Architecture' : 'Distributed Systems',
-    rationale: `Systematically overcomes ${limitation.title} by implementing automated fallback states and dynamic retry policies during pipeline execution.`,
+    rationale: `Systematically overcomes ${limTitle} by implementing automated fallback states and dynamic retry policies during pipeline execution.`,
     implementationApproach: `Construct an asynchronous event-driven state machine with exponential backoff retries and circuit-breaker isolation.`,
     expectedBenefit: `Guarantees 99.9% software execution availability and prevents cascading pipeline failures.`,
     feasibility: 'High' as const,

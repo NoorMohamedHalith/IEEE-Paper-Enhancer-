@@ -605,13 +605,12 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const recIds = recs.map((r) => r.id);
     const hasSelected = paper.selectedEnhancementIds && paper.selectedEnhancementIds.length > 0;
-    const hasValidated = paper.validatedEnhancementIds && paper.validatedEnhancementIds.length > 0;
 
-    if (recsGenerated || !hasSelected || !hasValidated) {
+    if (recsGenerated || !hasSelected) {
       const updatedPaper: IEEEPaper = {
         ...paper,
         selectedEnhancementIds: hasSelected ? paper.selectedEnhancementIds : recIds,
-        validatedEnhancementIds: hasValidated ? paper.validatedEnhancementIds : recIds,
+        validatedEnhancementIds: paper.validatedEnhancementIds || [],
         projectStatus: paper.projectStatus === 'In Analysis' ? 'Proposal Ready' : paper.projectStatus,
         analysis: {
           ...paper.analysis,
@@ -718,6 +717,10 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const validateEnhancement = async (paperId: string, enhancementId: string) => {
     const paper = papers.find((p) => p.id === paperId);
     if (!paper || !paper.analysis) return;
+
+    // Requirement: Must be selected before validation can succeed
+    const selectedIds = paper.selectedEnhancementIds || [];
+    if (!selectedIds.includes(enhancementId)) return;
 
     recordHistory();
 

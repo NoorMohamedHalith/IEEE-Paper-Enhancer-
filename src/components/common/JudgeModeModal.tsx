@@ -126,7 +126,7 @@ export const JudgeModeModal: React.FC<JudgeModeModalProps> = ({ isOpen, onClose 
       keyPoint: 'Generates full software module specs, before/after architecture diagrams, and downloadable IEEE report PDF.',
       metrics: [
         { label: 'Project Status', value: activePaper?.projectStatus || 'In Analysis' },
-        { label: 'Quality Score', value: `${activePaper?.qualityScoreBreakdown?.overallScore || 90} / 100` },
+        { label: 'Quality Score', value: activePaper?.qualityScoreBreakdown?.overallScore !== undefined ? `${activePaper.qualityScoreBreakdown.overallScore} / 100` : 'NOT CALCULATED' },
         { label: 'Report PDF', value: 'Ready for Export' },
       ],
       details: 'Complete end-to-end hackathon proposal ready for academic or industry presentation.',

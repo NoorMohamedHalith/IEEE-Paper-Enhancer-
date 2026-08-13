@@ -118,16 +118,9 @@ export const EnhancedProjectPage: React.FC = () => {
       const gaps = analysis?.researchGaps || [];
       const evidences = analysis?.evidences || [];
 
-      const matchingLimitation =
-        limitations.find((l) => l.id === rec.limitationId) ||
-        limitations[idx] ||
-        limitations[0];
-      const matchingGap =
-        gaps.find((g) => g.id === rec.researchGapId) ||
-        gaps[0];
-      const matchingEvidence =
-        evidences.find((e) => rec.evidenceIds?.includes(e.id)) ||
-        evidences[0];
+      const matchingLimitation = limitations.find((l) => l.id === rec.limitationId);
+      const matchingGap = gaps.find((g) => g.id === rec.researchGapId);
+      const matchingEvidence = evidences.find((e) => rec.evidenceIds?.includes(e.id));
 
       return {
         id: `chain-${rec.id}`,
