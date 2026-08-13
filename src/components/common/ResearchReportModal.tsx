@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
-import { downloadElementAsPDF } from '../../utils/printUtils';
+import { downloadElementAsPDF, triggerPrint } from '../../utils/printUtils';
 import { generateClientDynamicProjectSpec } from '../../services/ai/projectSpecEngine';
 import { WORKFLOW_STEPS } from '../../types';
-import { sanitizeEvidenceQuote } from '../../utils/textSanitizer';
+import { sanitizeEvidenceQuote, sanitizeDisplaySummary } from '../../utils/textSanitizer';
 import {
   X,
   Printer,
@@ -24,7 +24,7 @@ import {
   Terminal,
   Activity,
   ArrowRight,
-  Database
+  Eye
 } from 'lucide-react';
 
 export const ResearchReportModal: React.FC = () => {
@@ -32,6 +32,7 @@ export const ResearchReportModal: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [pdfStatus, setPdfStatus] = useState('');
+  const [isPrintPreview, setIsPrintPreview] = useState(false);
 
   if (!isReportModalOpen) return null;
 
@@ -49,7 +50,15 @@ export const ResearchReportModal: React.FC = () => {
 
   const projectSpec = activePaper ? generateClientDynamicProjectSpec(activePaper) : null;
 
-  const handlePrint = async () => {
+  const handleNativePrint = () => {
+    try {
+      triggerPrint('printable-research-report', `IEEE_Research_Report_${activePaper?.id?.slice(0, 8) || 'Spec'}`);
+    } catch {
+      handleDownloadPDF();
+    }
+  };
+
+  const handleDownloadPDF = async () => {
     if (isGeneratingPDF) return;
     setIsGeneratingPDF(true);
     setPdfStatus('Generating PDF...');
@@ -57,6 +66,7 @@ export const ResearchReportModal: React.FC = () => {
     await downloadElementAsPDF('printable-research-report', filename, (msg) => setPdfStatus(msg));
     setIsGeneratingPDF(false);
   };
+
 
   const handleCopySummary = () => {
     if (!activePaper) return;
@@ -188,7 +198,7 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
   return (
     <div className="fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto print:p-0 print:bg-white print:static print:inset-auto">
       
-      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden print:max-h-none print:shadow-none print:border-none print:rounded-none">
+      <div className="relative bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden print:max-h-none print:shadow-none print:border-none print:rounded-none">
         
         {/* Modal Toolbar (Hidden during browser print) */}
         <div className="no-print flex flex-wrap items-center justify-between p-4 sm:p-5 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/80 gap-3">
@@ -206,7 +216,21 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => setIsPrintPreview(!isPrintPreview)}
+              id="btn-toggle-print-preview"
+              className={`px-3 py-1.5 rounded-lg border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                isPrintPreview
+                  ? 'border-purple-600 bg-purple-100 text-purple-900 dark:bg-purple-900/60 dark:text-purple-100 dark:border-purple-500 font-bold ring-2 ring-purple-500/30'
+                  : 'border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200'
+              }`}
+              title="Toggle live print CSS view on screen to preview exact document output"
+            >
+              <Eye className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+              <span>{isPrintPreview ? 'Exit Preview' : 'Toggle Print Preview'}</span>
+            </button>
+
             <button
               onClick={handleCopySummary}
               className="px-3 py-1.5 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
@@ -226,15 +250,24 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
             </button>
 
             <button
-              onClick={handlePrint}
+              onClick={handleNativePrint}
+              className="px-3.5 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-900 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors cursor-pointer"
+              title="Open browser print window to print or save directly as high-resolution PDF"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print / Save PDF</span>
+            </button>
+
+            <button
+              onClick={handleDownloadPDF}
               disabled={isGeneratingPDF}
-              className="px-3.5 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors disabled:opacity-60"
+              className="px-3.5 py-1.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-xs transition-colors disabled:opacity-60 cursor-pointer"
               title="Download PDF document directly to your device"
             >
               {isGeneratingPDF ? (
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
               ) : (
-                <Printer className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5" />
               )}
               <span>{isGeneratingPDF ? (pdfStatus || 'Generating PDF...') : 'Download PDF'}</span>
             </button>
@@ -248,8 +281,40 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
           </div>
         </div>
 
+        {/* Live Print Preview Banner Indicator */}
+        {isPrintPreview && (
+          <div className="no-print bg-purple-900 text-purple-100 px-4 py-2.5 text-xs font-medium flex items-center justify-between border-b border-purple-700 shadow-inner">
+            <div className="flex items-center gap-2">
+              <Eye className="w-4 h-4 text-purple-300 animate-pulse" />
+              <span>
+                <strong>Live Print Preview Mode Active:</strong> Displaying exact high-contrast paper layout and light styling for clean PDF export and printing.
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleNativePrint}
+                className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <Printer className="w-3 h-3" />
+                <span>Print Now</span>
+              </button>
+              <button
+                onClick={() => setIsPrintPreview(false)}
+                className="px-2.5 py-1 rounded bg-purple-800 hover:bg-purple-700 text-purple-200 font-semibold text-xs transition-colors cursor-pointer"
+              >
+                Exit Preview
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Printable Document Container */}
-        <div id="printable-research-report" className="p-6 sm:p-10 overflow-y-auto space-y-8 text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900 font-sans">
+        <div
+          id="printable-research-report"
+          className={`p-6 sm:p-10 overflow-y-auto space-y-8 font-sans transition-all bg-white text-zinc-900 ${
+            isPrintPreview ? 'print-preview-mode max-w-4xl mx-auto shadow-2xl border border-zinc-300 rounded-xl' : ''
+          }`}
+        >
           
           {/* Document Header & IEEE Branding */}
           <div className="border-b-2 border-emerald-800 pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
@@ -329,8 +394,8 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
                 
                 <div className="pt-2 border-t border-zinc-200/80 dark:border-zinc-800/80 space-y-1 text-xs">
                   <span className="font-bold text-zinc-800 dark:text-zinc-200 block">Executive Summary:</span>
-                  <p className="text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                    {analysis?.paperSummary || 'Analysis pending or summary unavailable.'}
+                  <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed">
+                    {sanitizeDisplaySummary(analysis?.paperSummary, activePaper?.title)}
                   </p>
                 </div>
 
@@ -353,27 +418,27 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
           {/* Section 2: Grounded Limitations */}
           {analysis && analysis.limitations.length > 0 && (
             <div className="space-y-3">
-              <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-xs font-bold text-amber-800 uppercase tracking-wider">
                 <AlertCircle className="w-4 h-4" />
                 <span>2. Extracted Grounded Limitations ({analysis.limitations.length})</span>
               </div>
 
-              <div className="divide-y divide-zinc-200 dark:divide-zinc-800 rounded-xl border border-zinc-200 dark:border-zinc-800 overflow-hidden text-xs">
+              <div className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 overflow-hidden text-xs">
                 {(analysis.limitations || []).map((lim, idx) => (
-                  <div key={lim.id} className="p-4 bg-zinc-50/50 dark:bg-zinc-950/50 space-y-1.5">
+                  <div key={lim.id} className="p-4 bg-zinc-50 space-y-1.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-bold text-zinc-900 dark:text-zinc-100">
+                      <span className="font-bold text-zinc-900">
                         {idx + 1}. {lim.title}
                       </span>
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
                         {lim.type} ({lim.confidence})
                       </span>
                     </div>
 
-                    <p className="text-zinc-600 dark:text-zinc-400">{lim.explanation}</p>
+                    <p className="text-zinc-700 leading-relaxed">{lim.explanation}</p>
 
                     {lim.paperEvidenceQuote && (
-                      <div className="p-2.5 rounded-lg bg-amber-50/60 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 text-[11px] text-amber-950 dark:text-amber-200 italic">
+                      <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-[11px] text-amber-950 italic">
                         "{sanitizeEvidenceQuote(lim.paperEvidenceQuote, activePaper?.title)}" {lim.pageCitation && `— [${lim.pageCitation}]`}
                       </div>
                     )}
@@ -573,7 +638,7 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
                       <strong>Mitigates Limitation:</strong> {mod.linkedLimitation}
                     </div>
                     {mod.codeSnippet && (
-                      <pre className="p-3 rounded bg-zinc-900 text-zinc-100 font-mono text-[10px] leading-relaxed overflow-x-auto">
+                      <pre className="p-3 rounded-lg bg-zinc-100 dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 border border-zinc-300 dark:border-zinc-800 font-mono text-[10px] leading-relaxed overflow-x-auto">
                         {mod.codeSnippet}
                       </pre>
                     )}
@@ -736,6 +801,33 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
             <span>CHECKSUM: {Math.random().toString(36).substring(2, 10).toUpperCase()}</span>
           </div>
 
+        </div>
+
+        {/* Floating Action Buttons: Dedicated Print Controls */}
+        <div className="no-print absolute bottom-6 right-8 z-40 flex items-center gap-2.5">
+          <button
+            onClick={() => setIsPrintPreview(!isPrintPreview)}
+            id="btn-floating-toggle-preview"
+            className={`px-3.5 py-2.5 rounded-full font-bold text-xs sm:text-sm flex items-center gap-2 shadow-2xl transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer border ring-2 ${
+              isPrintPreview
+                ? 'bg-purple-700 hover:bg-purple-800 text-white border-purple-500/50 ring-purple-400/30'
+                : 'bg-zinc-800 hover:bg-zinc-900 text-zinc-100 border-zinc-700 ring-zinc-600/20'
+            }`}
+            title="Toggle live print CSS preview on screen"
+          >
+            <Eye className="w-4 h-4 text-purple-300" />
+            <span className="font-bold tracking-wide">{isPrintPreview ? 'Exit Preview' : 'Print Preview'}</span>
+          </button>
+
+          <button
+            onClick={handleNativePrint}
+            id="btn-floating-print-report"
+            className="group px-4 py-2.5 rounded-full bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs sm:text-sm flex items-center gap-2 shadow-2xl hover:shadow-emerald-950/50 transition-all duration-200 transform hover:scale-105 active:scale-95 cursor-pointer border border-emerald-700/50 ring-2 ring-emerald-500/20"
+            title="Explicitly open browser print window to print or save report as PDF"
+          >
+            <Printer className="w-4 h-4 text-emerald-200 group-hover:text-white transition-colors" />
+            <span className="font-bold tracking-wide">Print Report</span>
+          </button>
         </div>
 
       </div>

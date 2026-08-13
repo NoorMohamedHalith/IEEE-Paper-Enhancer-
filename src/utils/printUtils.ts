@@ -358,13 +358,14 @@ export const downloadElementAsPDF = async (
           // Ignore
         }
 
-        // 3. Directly convert computed styles containing oklab/oklch into inline !important RGB styles
-        const defaultView = clonedDoc.defaultView || window;
-        const allElements = Array.from(clonedDoc.querySelectorAll<HTMLElement>('*'));
-        if (clonedElement) allElements.push(clonedElement);
+        // 3. Fast & selective color function sanitization on inline style attributes & key color properties
+        const clonedElements = Array.from(clonedDoc.querySelectorAll<HTMLElement>('*'));
+        if (clonedElement) clonedElements.push(clonedElement);
 
-        allElements.forEach((el) => {
-          // Sanitize inline style attributes first
+        const COLOR_PROPS = ['color', 'backgroundColor', 'borderColor', 'fill', 'stroke', 'boxShadow'] as const;
+
+        clonedElements.forEach((el) => {
+          // Sanitize inline style attribute
           const styleAttr = el.getAttribute('style');
           if (styleAttr && UNSUPPORTED_COLOR_REGEX.test(styleAttr)) {
             el.setAttribute('style', replaceColorFunctionsInText(styleAttr));
@@ -373,41 +374,43 @@ export const downloadElementAsPDF = async (
           // Reset text distortion properties for html2canvas crisp font rasterization
           el.style.letterSpacing = 'normal';
           el.style.wordSpacing = 'normal';
-          if (el.classList.contains('truncate') || el.classList.contains('line-clamp-1') || el.classList.contains('line-clamp-2') || el.classList.contains('line-clamp-3')) {
+          if (
+            el.classList.contains('truncate') ||
+            el.classList.contains('line-clamp-1') ||
+            el.classList.contains('line-clamp-2') ||
+            el.classList.contains('line-clamp-3')
+          ) {
             el.style.whiteSpace = 'normal';
             el.style.overflow = 'visible';
             el.style.textOverflow = 'clip';
           }
 
-          // Fix badge / pill text squishing in html2canvas
-          if (el.classList.contains('bg-emerald-800') || el.classList.contains('bg-emerald-700') || el.classList.contains('bg-emerald-900')) {
+          // Fix badge / pill text styling for html2canvas
+          if (
+            el.classList.contains('bg-emerald-800') ||
+            el.classList.contains('bg-emerald-700') ||
+            el.classList.contains('bg-emerald-900')
+          ) {
             el.style.display = 'inline-flex';
             el.style.alignItems = 'center';
             el.style.padding = '4px 10px';
             el.style.lineHeight = '1.2';
-            el.style.letterSpacing = '0.03em';
             el.style.backgroundColor = '#065f46';
             el.style.color = '#ffffff';
             el.style.borderRadius = '6px';
             el.style.fontWeight = '800';
-            el.style.boxSizing = 'border-box';
           }
 
-          // Evaluate computed styles and lock down sanitized RGB values onto the cloned node
+          // Convert only key color properties if they use oklch/oklab
           try {
-            const computed = defaultView.getComputedStyle(el);
-            if (computed) {
-              for (let i = 0; i < computed.length; i++) {
-                const prop = computed[i];
-                const val = computed.getPropertyValue(prop);
-                if (val && UNSUPPORTED_COLOR_REGEX.test(val)) {
-                  const sanitizedVal = replaceColorFunctionsInText(val);
-                  el.style.setProperty(prop, sanitizedVal, 'important');
-                }
+            COLOR_PROPS.forEach((prop) => {
+              const val = el.style[prop as any];
+              if (val && UNSUPPORTED_COLOR_REGEX.test(val)) {
+                el.style[prop as any] = replaceColorFunctionsInText(val);
               }
-            }
+            });
           } catch {
-            // Ignore non-stylable elements
+            // Ignore
           }
         });
       }
@@ -416,6 +419,8 @@ export const downloadElementAsPDF = async (
     // Revert target styling
     targetElement.style.cssText = originalStyle;
     targetElement.classList.remove('pdf-render-mode');
+
+    onProgress?.('Building PDF pages...');
 
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -439,7 +444,6 @@ export const downloadElementAsPDF = async (
     while (currentY < canvas.height) {
       const sliceHeight = Math.min(sliceHeightPx, canvas.height - currentY);
 
-      // Offscreen canvas for page slice
       const sliceCanvas = document.createElement('canvas');
       sliceCanvas.width = canvas.width;
       sliceCanvas.height = sliceHeight;
@@ -486,95 +490,118 @@ export const downloadElementAsPDF = async (
     onProgress?.('PDF Downloaded!');
     return true;
   } catch (err) {
-    console.error('[IEEE InnovateX] PDF Generation Error, falling back to window.print():', err);
-    triggerPrint(elementId, filename);
-    return false;
+    console.error('[IEEE InnovateX] Canvas PDF Generation Error, using direct jsPDF fallback:', err);
+    return generateFallbackTextPDF(elementId, filename, onProgress);
   }
 };
 
+/**
+ * Direct jsPDF text fallback generator if html2canvas is blocked or fails.
+ */
+function generateFallbackTextPDF(
+  elementId: string,
+  filename: string,
+  onProgress?: (msg: string) => void
+): boolean {
+  try {
+    onProgress?.('Generating Fallback PDF...');
+    const el = document.getElementById(elementId);
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    
+    const margin = 15;
+    let y = 20;
+    const pageHeight = 280;
+    
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(16);
+    pdf.setTextColor(6, 95, 70); // Emerald 800
+    pdf.text('IEEE INNOVATEX — RESEARCH SPECIFICATION REPORT', margin, y);
+    y += 10;
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(10);
+    pdf.setTextColor(50, 50, 50);
+
+    const rawText = el?.innerText || el?.textContent || 'IEEE Research Specification Report Output.';
+    const lines = pdf.splitTextToSize(rawText, 180);
+
+    lines.forEach((line: string) => {
+      if (y > pageHeight) {
+        pdf.addPage();
+        y = 20;
+      }
+      pdf.text(line, margin, y);
+      y += 5.5;
+    });
+
+    const safeFilename = filename.endsWith('.pdf') ? filename : `${filename}.pdf`;
+    pdf.save(safeFilename);
+    onProgress?.('PDF Downloaded!');
+    return true;
+  } catch (e) {
+    console.error('[IEEE InnovateX] Fallback PDF generation failed:', e);
+    return false;
+  }
+}
+
 export const triggerPrint = (elementId?: string, documentTitle: string = 'IEEE InnovateX Research Report') => {
   try {
-    if (elementId) {
-      const targetElement = document.getElementById(elementId);
-      if (targetElement) {
-        const iframe = document.createElement('iframe');
-        iframe.name = 'print_iframe';
-        iframe.style.position = 'fixed';
-        iframe.style.right = '0';
-        iframe.style.bottom = '0';
-        iframe.style.width = '0';
-        iframe.style.height = '0';
-        iframe.style.border = '0';
-        iframe.style.opacity = '0';
-
-        document.body.appendChild(iframe);
-
-        const iframeDoc = iframe.contentWindow?.document;
-        if (iframeDoc) {
-          const styleTags = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
-            .map((style) => style.outerHTML)
-            .join('\n');
-
-          iframeDoc.open();
-          iframeDoc.write(`
-            <!DOCTYPE html>
-            <html lang="en">
-              <head>
-                <meta charset="utf-8" />
-                <title>${documentTitle}</title>
-                ${styleTags}
-                <style>
-                  @page {
-                    size: A4 portrait;
-                    margin: 10mm 12mm;
-                  }
-                  body {
-                    background: #ffffff !important;
-                    color: #000000 !important;
-                    padding: 16px !important;
-                    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
-                    -webkit-print-color-adjust: exact !important;
-                    print-color-adjust: exact !important;
-                  }
-                  .no-print {
-                    display: none !important;
-                  }
-                  * {
-                    box-shadow: none !important;
-                  }
-                </style>
-              </head>
-              <body>
-                <div class="printable-content">
-                  ${targetElement.innerHTML}
-                </div>
-                <script>
-                  window.onload = function() {
-                    setTimeout(function() {
-                      window.focus();
-                      window.print();
-                      setTimeout(function() {
-                        if (window.frameElement) {
-                          window.frameElement.remove();
-                        }
-                      }, 1000);
-                    }, 300);
-                  };
-                </script>
-              </body>
-            </html>
-          `);
-          iframeDoc.close();
-          return;
-        }
-      }
-    }
-
+    // 1. First attempt native window.print() on the main document
     window.focus();
     window.print();
   } catch (err) {
-    console.warn('[IEEE InnovateX] Print fallback:', err);
-    window.focus();
-    window.print();
+    console.warn('[IEEE InnovateX] Native window.print() blocked or failed, attempting printable window fallback:', err);
+    
+    try {
+      if (elementId) {
+        const targetElement = document.getElementById(elementId);
+        if (targetElement) {
+          const printWin = window.open('', '_blank', 'width=900,height=800');
+          if (printWin) {
+            const styleTags = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+              .map((style) => style.outerHTML)
+              .join('\n');
+
+            printWin.document.write(`
+              <!DOCTYPE html>
+              <html lang="en">
+                <head>
+                  <meta charset="utf-8" />
+                  <title>${documentTitle}</title>
+                  ${styleTags}
+                  <style>
+                    body {
+                      background: #ffffff !important;
+                      color: #09090b !important;
+                      padding: 24px !important;
+                      font-family: system-ui, -apple-system, sans-serif !important;
+                    }
+                    .no-print { display: none !important; }
+                  </style>
+                </head>
+                <body>
+                  <div>${targetElement.innerHTML}</div>
+                  <script>
+                    window.onload = function() {
+                      window.focus();
+                      window.print();
+                    };
+                  </script>
+                </body>
+              </html>
+            `);
+            printWin.document.close();
+            return;
+          }
+        }
+      }
+    } catch {
+      // Ignore pop-up block
+    }
+
+    // Final fallback: trigger direct PDF download
+    if (elementId) {
+      downloadElementAsPDF(elementId, `${documentTitle.replace(/\s+/g, '_')}.pdf`);
+    }
   }
 };

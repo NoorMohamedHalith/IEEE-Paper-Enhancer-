@@ -48,7 +48,7 @@ async function startServer() {
       const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, "");
 
       const response = await ai.models.generateContent({
-        model: "gemini-3.6-flash",
+        model: "gemini-3.1-flash-lite",
         contents: [
           {
             inlineData: {
@@ -658,7 +658,7 @@ CRITICAL INSTRUCTIONS:
       let response;
       try {
         response = await ai.models.generateContent({
-          model: "gemini-3.6-flash",
+          model: "gemini-3.1-flash-lite",
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -667,9 +667,8 @@ CRITICAL INSTRUCTIONS:
           }
         });
       } catch (firstErr: any) {
-        console.log("[IEEE InnovateX] Secondary model retry initialized...", firstErr?.message);
         response = await ai.models.generateContent({
-          model: "gemini-3.1-flash-lite",
+          model: "gemini-3.6-flash",
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -847,7 +846,7 @@ ${JSON.stringify(evidences, null, 2)}`;
       let response;
       try {
         response = await ai.models.generateContent({
-          model: "gemini-3.6-flash",
+          model: "gemini-3.1-flash-lite",
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -856,9 +855,8 @@ ${JSON.stringify(evidences, null, 2)}`;
           }
         });
       } catch (recErr: any) {
-        console.log("[IEEE InnovateX] Primary recommendation model failed, retrying with gemini-3.1-flash-lite...");
         response = await ai.models.generateContent({
-          model: "gemini-3.1-flash-lite",
+          model: "gemini-3.6-flash",
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -1048,7 +1046,7 @@ Selected Enhancements: ${JSON.stringify(recommendations?.filter((r: any) => sele
       let response;
       try {
         response = await ai.models.generateContent({
-          model: "gemini-3.6-flash",
+          model: "gemini-3.1-flash-lite",
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,
@@ -1057,9 +1055,8 @@ Selected Enhancements: ${JSON.stringify(recommendations?.filter((r: any) => sele
           }
         });
       } catch (specErr: any) {
-        console.log("[IEEE InnovateX] Primary spec model failed, retrying with gemini-3.1-flash-lite...");
         response = await ai.models.generateContent({
-          model: "gemini-3.1-flash-lite",
+          model: "gemini-3.6-flash",
           contents: prompt,
           config: {
             systemInstruction: SYSTEM_INSTRUCTION,

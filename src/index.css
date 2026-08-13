@@ -81,26 +81,160 @@
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff !important;
-    color: #000000 !important;
+    color: #09090b !important;
     box-shadow: none !important;
     border: none !important;
     visibility: visible !important;
   }
 
-  #printable-research-report * {
-    visibility: visible !important;
+  /* Force light card fills and crisp dark text for ALL elements inside report */
+  #printable-research-report div,
+  #printable-research-report section,
+  #printable-research-report article,
+  #printable-research-report pre {
+    background-color: #f8fafc !important;
+    border-color: #e2e8f0 !important;
   }
 
-  /* Dark mode overrides when printing */
-  .dark {
+  #printable-research-report,
+  #printable-research-report > div {
     background-color: #ffffff !important;
-    color: #000000 !important;
   }
 
-  .dark * {
-    color: #000000 !important;
-    border-color: #e5e7eb !important;
-    background-color: transparent !important;
+  #printable-research-report p,
+  #printable-research-report span,
+  #printable-research-report h1,
+  #printable-research-report h2,
+  #printable-research-report h3,
+  #printable-research-report h4,
+  #printable-research-report h5,
+  #printable-research-report h6,
+  #printable-research-report li,
+  #printable-research-report td,
+  #printable-research-report th,
+  #printable-research-report strong,
+  #printable-research-report pre,
+  #printable-research-report code {
+    color: #09090b !important;
+  }
+
+  /* Special contrast rules for badges & pills */
+  #printable-research-report .bg-emerald-800,
+  #printable-research-report .bg-emerald-700,
+  #printable-research-report .bg-emerald-900,
+  #printable-research-report .bg-purple-700,
+  #printable-research-report .bg-purple-800 {
+    background-color: #065f46 !important;
+    color: #ffffff !important;
+  }
+
+  #printable-research-report .bg-emerald-800 *,
+  #printable-research-report .bg-emerald-700 *,
+  #printable-research-report .bg-purple-700 * {
+    color: #ffffff !important;
+  }
+
+  #printable-research-report [class*="bg-amber-"] {
+    background-color: #fef3c7 !important;
+    color: #78350f !important;
+    border-color: #fde68a !important;
+  }
+
+  #printable-research-report [class*="bg-amber-"] * {
+    color: #78350f !important;
+  }
+
+  #printable-research-report [class*="bg-blue-"] {
+    background-color: #dbeafe !important;
+    color: #1e40af !important;
+    border-color: #bfdbfe !important;
+  }
+
+  #printable-research-report [class*="bg-blue-"] * {
+    color: #1e40af !important;
+  }
+
+  /* Reset global dark mode container during print */
+  .dark, body.dark {
+    background-color: #ffffff !important;
+    color: #09090b !important;
   }
 }
+
+/* 4. On-Screen Live Print Preview Mode */
+#printable-research-report.print-preview-mode {
+  background-color: #ffffff !important;
+  color: #09090b !important;
+  max-width: 820px !important;
+  margin: 1.5rem auto !important;
+  padding: 2.5rem !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid #d4d4d8 !important;
+  border-radius: 0.75rem !important;
+}
+
+#printable-research-report.print-preview-mode div,
+#printable-research-report.print-preview-mode section,
+#printable-research-report.print-preview-mode article,
+#printable-research-report.print-preview-mode pre {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+#printable-research-report.print-preview-mode,
+#printable-research-report.print-preview-mode > div {
+  background-color: #ffffff !important;
+}
+
+#printable-research-report.print-preview-mode p,
+#printable-research-report.print-preview-mode span,
+#printable-research-report.print-preview-mode h1,
+#printable-research-report.print-preview-mode h2,
+#printable-research-report.print-preview-mode h3,
+#printable-research-report.print-preview-mode h4,
+#printable-research-report.print-preview-mode h5,
+#printable-research-report.print-preview-mode h6,
+#printable-research-report.print-preview-mode li,
+#printable-research-report.print-preview-mode td,
+#printable-research-report.print-preview-mode th,
+#printable-research-report.print-preview-mode strong,
+#printable-research-report.print-preview-mode pre,
+#printable-research-report.print-preview-mode code {
+  color: #09090b !important;
+}
+
+#printable-research-report.print-preview-mode .bg-emerald-800,
+#printable-research-report.print-preview-mode .bg-emerald-700,
+#printable-research-report.print-preview-mode .bg-emerald-900,
+#printable-research-report.print-preview-mode .bg-purple-700 {
+  background-color: #065f46 !important;
+  color: #ffffff !important;
+}
+
+#printable-research-report.print-preview-mode .bg-emerald-800 *,
+#printable-research-report.print-preview-mode .bg-emerald-700 *,
+#printable-research-report.print-preview-mode .bg-purple-700 * {
+  color: #ffffff !important;
+}
+
+#printable-research-report.print-preview-mode [class*="bg-amber-"] {
+  background-color: #fef3c7 !important;
+  color: #78350f !important;
+  border-color: #fde68a !important;
+}
+
+#printable-research-report.print-preview-mode [class*="bg-amber-"] * {
+  color: #78350f !important;
+}
+
+#printable-research-report.print-preview-mode [class*="bg-blue-"] {
+  background-color: #dbeafe !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
+}
+
+#printable-research-report.print-preview-mode [class*="bg-blue-"] * {
+  color: #1e40af !important;
+}
+
 

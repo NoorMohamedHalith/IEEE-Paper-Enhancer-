@@ -17,6 +17,49 @@ const STORAGE_KEY_PAPERS = 'ieee_innovatex_papers_v1';
 const STORAGE_KEY_SETTINGS = 'ieee_innovatex_settings_v1';
 const STORAGE_KEY_AUDIT_LOGS = 'ieee_innovatex_audit_logs_v1';
 
+function safeSetItem(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    console.warn(`LocalStorage quota exceeded for key "${key}". Purging old audit logs and compacting payload...`, err);
+    try {
+      localStorage.removeItem(STORAGE_KEY_AUDIT_LOGS);
+      localStorage.setItem(key, value);
+    } catch (secondErr) {
+      console.warn(`Secondary quota error for key "${key}". Truncating item data...`, secondErr);
+      if (key === STORAGE_KEY_PAPERS) {
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            const compactPapers = parsed.slice(0, 3).map((p: any) => ({
+              ...p,
+              rawText: p.rawText ? (p.rawText.length > 500 ? p.rawText.slice(0, 500) + '... [truncated]' : p.rawText) : '',
+              analysis: p.analysis ? {
+                ...p.analysis,
+                evidences: (p.analysis.evidences || []).map((e: any) => ({
+                  ...e,
+                  quoteOrExcerpt: e.quoteOrExcerpt ? e.quoteOrExcerpt.slice(0, 150) : ''
+                }))
+              } : p.analysis
+            }));
+            localStorage.setItem(key, JSON.stringify(compactPapers));
+            return;
+          }
+        } catch {
+          // ignore parse errors
+        }
+      }
+      try {
+        // Last fallback: clear all except current key or ignore
+        localStorage.clear();
+        localStorage.setItem(key, value);
+      } catch (finalErr) {
+        console.error(`Final LocalStorage save attempt failed safely for key "${key}":`, finalErr);
+      }
+    }
+  }
+}
+
 export class LocalStorageAdapter implements IDatabaseAdapter {
   async getPapers(): Promise<IEEEPaper[]> {
     try {
@@ -36,42 +79,13 @@ export class LocalStorageAdapter implements IDatabaseAdapter {
       papers.unshift(paper);
     }
 
-    // Limit papers list to top 5 most recent papers if needed
-    const papersToSave = papers.slice(0, 5);
+    // Sanitize heavy rawText prior to saving to prevent large blob storage
+    const papersToSave = papers.slice(0, 5).map((p) => ({
+      ...p,
+      rawText: p.rawText ? (p.rawText.length > 3000 ? p.rawText.slice(0, 3000) + '... [truncated for storage]' : p.rawText) : ''
+    }));
 
-    try {
-      localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(papersToSave));
-    } catch (quotaError) {
-      console.warn('LocalStorage quota exceeded. Truncating raw paper text to fit storage quota...', quotaError);
-      
-      // Sanitize papers by trimming heavy rawText layers to prevent localStorage quota crash
-      const sanitizedPapers = papersToSave.map((p) => ({
-        ...p,
-        rawText: p.rawText ? (p.rawText.length > 2000 ? p.rawText.slice(0, 2000) + '... [truncated for storage]' : p.rawText) : '',
-        analysis: p.analysis ? {
-          ...p.analysis,
-          evidences: (p.analysis.evidences || []).map((e) => ({
-            ...e,
-            quoteOrExcerpt: e.quoteOrExcerpt ? e.quoteOrExcerpt.slice(0, 300) : ''
-          }))
-        } : p.analysis
-      }));
-
-      try {
-        localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(sanitizedPapers));
-      } catch (secondError) {
-        console.warn('Secondary localStorage quota error. Saving essential paper metadata only...', secondError);
-        const ultraCompact = sanitizedPapers.map((p) => ({
-          ...p,
-          rawText: p.rawText ? p.rawText.slice(0, 500) : '',
-        }));
-        try {
-          localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(ultraCompact));
-        } catch (finalErr) {
-          console.error('Critical quota error saving papers:', finalErr);
-        }
-      }
-    }
+    safeSetItem(STORAGE_KEY_PAPERS, JSON.stringify(papersToSave));
   }
 
   async updatePaper(paper: IEEEPaper): Promise<void> {
@@ -81,7 +95,7 @@ export class LocalStorageAdapter implements IDatabaseAdapter {
   async deletePaper(id: string): Promise<void> {
     const papers = await this.getPapers();
     const filtered = papers.filter((p) => p.id !== id);
-    localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(filtered));
+    safeSetItem(STORAGE_KEY_PAPERS, JSON.stringify(filtered));
   }
 
   async getSettings(): Promise<WorkspaceSettings> {
@@ -101,7 +115,7 @@ export class LocalStorageAdapter implements IDatabaseAdapter {
   }
 
   async saveSettings(settings: WorkspaceSettings): Promise<void> {
-    localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
+    safeSetItem(STORAGE_KEY_SETTINGS, JSON.stringify(settings));
   }
 
   async clearWorkspace(): Promise<void> {
@@ -129,8 +143,8 @@ export class LocalStorageAdapter implements IDatabaseAdapter {
       metadata: log.metadata,
     };
     logs.unshift(newLog);
-    const trimmed = logs.slice(0, 200);
-    localStorage.setItem(STORAGE_KEY_AUDIT_LOGS, JSON.stringify(trimmed));
+    const trimmed = logs.slice(0, 100);
+    safeSetItem(STORAGE_KEY_AUDIT_LOGS, JSON.stringify(trimmed));
     return newLog;
   }
 

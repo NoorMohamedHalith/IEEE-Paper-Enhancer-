@@ -1,30 +1,48 @@
 import React, { useState } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
-import { Trash2, AlertTriangle, X } from 'lucide-react';
+import { Trash2, AlertTriangle, X, RefreshCw } from 'lucide-react';
 
 export const RemovePaperFloatingWidget: React.FC = () => {
-  const { activePaper, removePaper } = usePaperContext();
+  const { activePaper, papers, removePaper, clearWorkspace } = usePaperContext();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  if (!activePaper) return null;
+  const targetPaper = activePaper || (papers.length > 0 ? papers[0] : null);
 
   const handleConfirmDelete = async () => {
-    await removePaper(activePaper.id);
+    if (targetPaper) {
+      await removePaper(targetPaper.id);
+    } else {
+      await clearWorkspace();
+    }
     setShowConfirmModal(false);
   };
 
   return (
     <>
-      {/* Floating Bottom Right Button */}
+      {/* Floating Bottom Right Button - Always Visible */}
       <div className="fixed bottom-6 right-6 z-40 print:hidden">
-        <button
-          onClick={() => setShowConfirmModal(true)}
-          className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg flex items-center gap-2 border border-rose-500/80 transition-all hover:scale-105 active:scale-95 group"
-          title="Remove active paper from workspace"
-        >
-          <Trash2 className="w-4 h-4 transition-transform group-hover:rotate-12" />
-          <span>Remove Active Paper</span>
-        </button>
+        {targetPaper ? (
+          <button
+            onClick={() => setShowConfirmModal(true)}
+            className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-lg flex items-center gap-2 border border-rose-500/80 transition-all hover:scale-105 active:scale-95 group"
+            title="Remove active paper from workspace"
+          >
+            <Trash2 className="w-4 h-4 transition-transform group-hover:rotate-12" />
+            <span>Remove Active Paper</span>
+          </button>
+        ) : (
+          <button
+            onClick={async () => {
+              await clearWorkspace();
+              window.location.reload();
+            }}
+            className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold shadow-lg flex items-center gap-2 border border-amber-500/80 transition-all hover:scale-105 active:scale-95"
+            title="Reset storage & reload workspace"
+          >
+            <RefreshCw className="w-4 h-4" />
+            <span>Reset Workspace</span>
+          </button>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -51,7 +69,7 @@ export const RemovePaperFloatingWidget: React.FC = () => {
             <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700/60 space-y-1">
               <span className="text-[10px] font-bold text-zinc-400 uppercase">Selected Paper:</span>
               <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 line-clamp-2">
-                {activePaper.title}
+                {targetPaper ? targetPaper.title : 'All Workspace Papers'}
               </p>
             </div>
 
