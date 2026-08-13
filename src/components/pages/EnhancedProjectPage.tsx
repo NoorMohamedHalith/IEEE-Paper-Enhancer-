@@ -263,6 +263,112 @@ export const EnhancedProjectPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Research Novelty & Engineering Contribution */}
+      {projectSpec?.researchNovelty && (
+        <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                Hackathon Novelty Thesis
+              </span>
+              <h3 className="text-base font-bold text-zinc-900 mt-1 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-emerald-800" />
+                Research Novelty & Engineering Contribution
+              </h3>
+            </div>
+            <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-800 text-white">
+              Category 2: IEEE Enhancement
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">Core Addressed Limitation</span>
+              <p className="text-xs font-semibold text-rose-900">{projectSpec.researchNovelty.addressedLimitation}</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-200 space-y-1">
+              <span className="text-[10px] font-bold text-emerald-800 uppercase">Technical Novelty</span>
+              <p className="text-xs font-semibold text-emerald-950">{projectSpec.researchNovelty.technicalNovelty}</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">AI Layer Contribution</span>
+              <p className="text-xs text-zinc-800">{projectSpec.researchNovelty.aiContribution}</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">Edge Computing Contribution</span>
+              <p className="text-xs text-zinc-800">{projectSpec.researchNovelty.edgeContribution}</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1 md:col-span-2">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">Software IoT Integration & Differentiation</span>
+              <p className="text-xs text-zinc-800 mt-1">
+                <strong>IoT Integration:</strong> {projectSpec.researchNovelty.iotIntegrationApproach}
+              </p>
+              <p className="text-xs text-zinc-800 mt-1">
+                <strong>Differentiation:</strong> {projectSpec.researchNovelty.differentiationFromOriginal}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Decision Support Engine */}
+      {projectSpec?.decisionSupport && (
+        <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                AI + Edge Decision Engine
+              </span>
+              <h3 className="text-base font-bold text-zinc-900 mt-1 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-emerald-800" />
+                Intelligent Decision Support System
+              </h3>
+            </div>
+            <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-blue-100 text-blue-900 border border-blue-200">
+              Source: [{projectSpec.decisionSupport.decisionSource}]
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-1">
+              <span className="text-[10px] font-bold text-emerald-800 uppercase">Prediction Outcome</span>
+              <p className="text-xs font-bold text-emerald-950">{projectSpec.decisionSupport.prediction}</p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">Calculated Risk Score</span>
+              <div className="flex items-center gap-2">
+                <span className="text-lg font-mono font-bold text-zinc-900">{projectSpec.decisionSupport.riskScore}%</span>
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                  projectSpec.decisionSupport.severity === 'HIGH' ? 'bg-rose-100 text-rose-800' :
+                  projectSpec.decisionSupport.severity === 'MEDIUM' ? 'bg-amber-100 text-amber-800' :
+                  'bg-emerald-100 text-emerald-800'
+                }`}>
+                  {projectSpec.decisionSupport.severity} SEVERITY
+                </span>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">Recommended Action</span>
+              <p className="text-xs font-semibold text-zinc-900">{projectSpec.decisionSupport.recommendedAction}</p>
+            </div>
+          </div>
+
+          <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-2">
+            <span className="text-[11px] font-bold text-zinc-700 uppercase">Why This Decision? (Decision Rationale)</span>
+            <p className="text-xs text-zinc-600">{projectSpec.decisionSupport.whyThisDecision.rationale}</p>
+            <div className="pt-2 border-t border-zinc-200 flex flex-wrap gap-2 text-[10px] text-zinc-500">
+              <span><strong>Evidence Source:</strong> {projectSpec.decisionSupport.whyThisDecision.evidenceSource}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Architecture Graph Section */}
       {projectSpec?.architecture && (
         <ArchitectureGraph data={projectSpec.architecture} />

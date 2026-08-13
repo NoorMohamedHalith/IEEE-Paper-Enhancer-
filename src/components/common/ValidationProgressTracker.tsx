@@ -82,7 +82,7 @@ export const ValidationProgressTracker: React.FC<ValidationProgressTrackerProps>
         metricLabel: 'Traceability Coverage',
         baselineValue: '100% Grounded',
         enhancedValue: '100% Verified',
-        improvement: 'Zero hallucination risk',
+        improvement: 'Hallucination-Risk Mitigation',
         details: 'All software enhancement modules are linked to specific IEEE page, section, and verbatim quotation evidence.',
         timestamp: new Date().toLocaleTimeString(),
         logs: [

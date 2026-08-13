@@ -314,6 +314,45 @@ export interface ValidationPlanItem {
   status: ResultState;
 }
 
+export interface ResearchNovelty {
+  addressedLimitation: string;
+  technicalNovelty: string;
+  aiContribution: string;
+  edgeContribution: string;
+  iotIntegrationApproach: string;
+  differentiationFromOriginal: string;
+}
+
+export interface ScalableDeploymentStep {
+  stage: string;
+  title: string;
+  description: string;
+  components: string[];
+}
+
+export interface DecisionSupportData {
+  prediction: string;
+  riskScore: number;
+  severity: 'HIGH' | 'MEDIUM' | 'LOW';
+  recommendedAction: string;
+  whyThisDecision: {
+    riskFactors: string[];
+    evidenceSource: string;
+    rationale: string;
+  };
+  decisionSource: 'Paper-derived' | 'AI-inferred' | 'Simulation-derived' | 'Proposed';
+}
+
+export interface TechSuitabilityJustification {
+  technology: 'AI' | 'Software IoT' | 'Edge Computing';
+  isSuitable: boolean;
+  whySuitable: string;
+  targetedLimitation: string;
+  integrationApproach: string;
+  expectedBenefit: string;
+  implementationComplexity: 'Low' | 'Medium' | 'High';
+}
+
 export interface EnhancedProjectSpec {
   projectTitle: string;
   oneLineConcept: string;
@@ -348,6 +387,10 @@ export interface EnhancedProjectSpec {
   expectedImpact: string;
   limitationsOfEnhancement: string[];
   futureWork: string[];
+  researchNovelty?: ResearchNovelty;
+  scalableDeployment?: ScalableDeploymentStep[];
+  decisionSupport?: DecisionSupportData;
+  techSuitabilities?: TechSuitabilityJustification[];
 }
 
 export type ActivityActionType =

@@ -682,14 +682,14 @@ CRITICAL INSTRUCTIONS:
         httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
       });
 
-      const SYSTEM_INSTRUCTION = `You are an expert IEEE research software architect.
+      const SYSTEM_INSTRUCTION = `You are an expert IEEE research software architect specializing in Category 2: "Enhancement of Existing IEEE Projects".
 Generate tailored, SOFTWARE-ONLY enhancement recommendations directly derived from the supplied paper's research gaps, limitations, and evidences.
 
-CRITICAL RULES:
-1. NEVER hardcode generic answers. Each recommendation must solve an actual research gap and limitation from this paper.
-2. The system is SOFTWARE-ONLY. Do NOT require new physical hardware. Hardware requirements must be represented via software simulators, virtual IoT telemetry, or synthetic data.
-3. If a gap is non-technical or lacks evidence, set isNoStrongEnhancement: true with a clear explanation.
-4. Calculate explainable relevance score (0-100) using: Evidence Alignment (max 25) + Problem Alignment (max 25) + Feasibility (max 25) + Implementation Relevance (max 25).
+CRITICAL HACKATHON RULES:
+1. FOCUS AREA: The primary tech stack MUST be AI (Artificial Intelligence), IoT (Internet of Things), and Edge Computing.
+2. Every recommendation must integrate AI algorithms (e.g. residual calibration, anomaly detection), IoT stream handling (e.g. telemetry parsing, MQTT/CoAP pipelines), or Edge Computing (e.g. lock-free ring buffers, edge gateway low-latency wrappers).
+3. NEVER hardcode generic answers. Each recommendation must solve an actual research gap and limitation from this paper.
+4. The system is SOFTWARE-ONLY and deployable. Do NOT require new physical hardware. Hardware requirements must be represented via software edge nodes, virtual IoT telemetry, or synthetic sensor streams.
 5. Build complete traceability links: Paper Evidence -> Limitation -> Research Gap -> Enhancement -> New Software Module -> Validation Metric.`;
 
       const prompt = `Analyze these paper research gaps and generate customized software-only enhancement recommendations:
@@ -828,13 +828,14 @@ ${JSON.stringify(evidences, null, 2)}`;
         httpOptions: { headers: { 'User-Agent': 'aistudio-build' } }
       });
 
-      const SYSTEM_INSTRUCTION = `You are an expert software engineer generating a realistic research-to-software proposal derived from an IEEE research paper.
-CRITICAL RULES:
+      const SYSTEM_INSTRUCTION = `You are an expert software engineer generating a realistic research-to-software proposal derived from an IEEE research paper for Category 2: "Enhancement of Existing IEEE Projects".
+CRITICAL HACKATHON RULES:
 1. Every section MUST be derived from the actual paper and selected enhancements.
-2. The solution MUST be software-only. Do NOT require new physical hardware.
-3. Architecture flows must show existing flow (input -> processing -> output) vs enhanced flow with specific new software modules.
-4. Validation plan must list software-only tests with clear metric targets.
-5. Do NOT invent fake unverified claims; mark validation statuses properly.`;
+2. PRIMARY TECH STACK MUST BE: Artificial Intelligence (AI), Internet of Things (IoT), and Edge Computing.
+3. The solution MUST be software-only and scalable/deployable.
+4. Architecture flows must show existing flow (input -> processing -> output) vs enhanced flow with specific new software modules (e.g. Edge Ring Buffers, IoT Telemetry Parsers, AI Residual Models).
+5. Validation plan must list software-only tests with clear metric targets (latency in ms, throughput, accuracy).
+6. Do NOT invent fake unverified claims; mark validation statuses properly.`;
 
       const prompt = `Generate a complete Enhanced Project Specification for:
 Paper Title: ${paperTitle}

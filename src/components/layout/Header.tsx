@@ -52,11 +52,11 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
                     IEEE InnovateX
                   </h1>
                   <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                    Research Engine
+                    Tech Stack: AI | IoT | Edge Computing
                   </span>
                 </div>
                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium tracking-wide">
-                  Transform Research into Innovation
+                  Enhance IEEE Projects with Scalable AI, IoT & Edge Solutions
                 </p>
               </div>
             </div>
