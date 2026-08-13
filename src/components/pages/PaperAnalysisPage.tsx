@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
+import { downloadElementAsPDF, triggerPrint } from '../../utils/printUtils';
 import { WorkflowStepper } from '../layout/WorkflowStepper';
 import { EmptyStateCard } from '../common/EmptyStateCard';
 import { EvidenceModal } from '../common/EvidenceModal';
+import { InsightFeedbackControl } from '../common/InsightFeedbackControl';
 import { AnalysisDashboard } from '../analysis/AnalysisDashboard';
 import { PaperEvidence } from '../../types';
 import {
@@ -187,12 +189,24 @@ export const PaperAnalysisPage: React.FC = () => {
     downloadAnchor.remove();
   };
 
-  const handlePrintPDF = () => {
-    window.print();
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfStatus, setPdfStatus] = useState('');
+
+  const handlePrintPDF = async () => {
+    if (isGeneratingPDF) return;
+    setIsGeneratingPDF(true);
+    const originalTabSection = activeTabSection;
+    setActiveTabSection('all');
+    setPdfStatus('Generating PDF...');
+    await new Promise((resolve) => setTimeout(resolve, 150));
+    const filename = `IEEE_Paper_Analysis_${activePaper?.id?.slice(0, 8) || 'Report'}.pdf`;
+    await downloadElementAsPDF('printable-paper-analysis', filename, (msg) => setPdfStatus(msg));
+    setActiveTabSection(originalTabSection);
+    setIsGeneratingPDF(false);
   };
 
   return (
-    <div className="space-y-6">
+    <div id="printable-paper-analysis" className="space-y-6">
       <WorkflowStepper />
 
       {/* Header Banner */}
@@ -209,10 +223,10 @@ export const PaperAnalysisPage: React.FC = () => {
               </span>
             </div>
             <h2 className="text-lg font-bold text-[#1E293B]">
-              {analysis.paperInformation.title}
+              {analysis.paperInformation?.title || 'IEEE Paper'}
             </h2>
             <p className="text-xs text-[#64748B] mt-0.5">
-              Authors: {analysis.paperInformation.authors.join(', ')} • Year: {analysis.paperInformation.year}
+              Authors: {(analysis.paperInformation?.authors || []).join(', ')} • Year: {analysis.paperInformation?.year || 'N/A'}
             </p>
           </div>
 
@@ -227,10 +241,15 @@ export const PaperAnalysisPage: React.FC = () => {
 
             <button
               onClick={handlePrintPDF}
-              className="px-3 py-2 rounded-lg bg-[#F8FAFC] hover:bg-[#F0F4F2] text-[#1E293B] text-xs font-semibold border border-[#E8EAEF] flex items-center gap-1.5 transition-colors"
+              disabled={isGeneratingPDF}
+              className="px-3 py-2 rounded-lg bg-[#F8FAFC] hover:bg-[#F0F4F2] text-[#1E293B] text-xs font-semibold border border-[#E8EAEF] flex items-center gap-1.5 transition-colors disabled:opacity-60"
             >
-              <Printer className="w-3.5 h-3.5 text-[#064E3B]" />
-              <span>Print / PDF</span>
+              {isGeneratingPDF ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#064E3B]" />
+              ) : (
+                <Printer className="w-3.5 h-3.5 text-[#064E3B]" />
+              )}
+              <span>{isGeneratingPDF ? (pdfStatus || 'Generating PDF...') : 'Download PDF'}</span>
             </button>
 
             <button
@@ -312,7 +331,7 @@ export const PaperAnalysisPage: React.FC = () => {
                 <HelpCircle className="w-4 h-4 text-[#064E3B]" />
                 Core Problem Statement
               </h3>
-              <p className="text-xs text-[#1E293B] leading-relaxed">
+              <p className="text-xs text-[#1E293B] dark:text-zinc-200 leading-relaxed">
                 {analysis.problemStatement}
               </p>
 
@@ -320,13 +339,19 @@ export const PaperAnalysisPage: React.FC = () => {
                 <div className="pt-2">
                   <button
                     onClick={() => setSelectedEvidence(evidences[0])}
-                    className="px-2.5 py-1 rounded bg-[#F0F4F2] hover:bg-[#E2E8F0] text-[#064E3B] text-[11px] font-bold flex items-center gap-1 transition-colors"
+                    className="px-2.5 py-1 rounded bg-[#F0F4F2] dark:bg-emerald-950/80 hover:bg-[#E2E8F0] text-[#064E3B] dark:text-emerald-300 text-[11px] font-bold flex items-center gap-1 transition-colors border border-emerald-200 dark:border-emerald-800"
                   >
                     <FileText className="w-3 h-3" />
                     <span>[View Source Evidence]</span>
                   </button>
                 </div>
               )}
+
+              <InsightFeedbackControl
+                itemId="core_problem"
+                itemType="summary"
+                itemTitle="Core Problem Statement"
+              />
             </div>
 
           </div>
@@ -375,8 +400,8 @@ export const PaperAnalysisPage: React.FC = () => {
               <div>
                 <h4 className="text-xs font-bold text-[#1E293B] mb-2">Named Algorithms</h4>
                 <div className="flex flex-wrap gap-1.5">
-                  {analysis.algorithms.length > 0 ? (
-                    analysis.algorithms.map((alg, idx) => (
+                  {(analysis.algorithms || []).length > 0 ? (
+                    (analysis.algorithms || []).map((alg, idx) => (
                       <span key={idx} className="px-2.5 py-1 rounded bg-[#F8FAFC] text-[#1E293B] text-xs font-medium border border-[#E8EAEF]">
                         {alg}
                       </span>
@@ -390,8 +415,8 @@ export const PaperAnalysisPage: React.FC = () => {
               <div>
                 <h4 className="text-xs font-bold text-[#1E293B] mb-2">Technologies & Libraries</h4>
                 <div className="flex flex-wrap gap-1.5">
-                  {analysis.technologies.length > 0 ? (
-                    analysis.technologies.map((tech, idx) => (
+                  {(analysis.technologies || []).length > 0 ? (
+                    (analysis.technologies || []).map((tech, idx) => (
                       <span key={idx} className="px-2.5 py-1 rounded bg-[#F0F4F2] text-[#064E3B] text-xs font-medium border border-[#CBD5E1]">
                         {tech}
                       </span>
@@ -435,12 +460,19 @@ export const PaperAnalysisPage: React.FC = () => {
                     {resItem.evidenceId && (
                       <button
                         onClick={() => setSelectedEvidence(findEvidence(resItem.evidenceId))}
-                        className="text-[10px] text-[#064E3B] font-bold hover:underline flex items-center gap-1 pt-1"
+                        className="text-[10px] text-[#064E3B] dark:text-emerald-400 font-bold hover:underline flex items-center gap-1 pt-1"
                       >
                         <FileText className="w-3 h-3" />
                         <span>[View Evidence]</span>
                       </button>
                     )}
+
+                    <InsightFeedbackControl
+                      itemId={`res_${idx}`}
+                      itemType="result"
+                      itemTitle={resItem.metric}
+                      compact
+                    />
                   </div>
                 ))}
               </div>
@@ -454,57 +486,63 @@ export const PaperAnalysisPage: React.FC = () => {
 
         {/* Limitations & Evidence */}
         {(activeTabSection === 'all' || activeTabSection === 'limitations') && (
-          <div className="bg-white rounded-xl border border-[#E8EAEF] p-6 shadow-2xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8EAEF]">
-              <h3 className="text-xs font-bold text-[#1E293B] uppercase tracking-wider flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-rose-700" />
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-2xs space-y-4 transition-colors">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-rose-700 dark:text-rose-400" />
                 Limitations & Constraints Grounding
               </h3>
-              <span className="text-xs text-[#64748B] font-medium">
-                {analysis.limitations.length} Detected Limitations
+              <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+                {(analysis.limitations || []).length} Detected Limitations
               </span>
             </div>
 
             <div className="space-y-3">
-              {analysis.limitations.map((lim) => {
+              {(analysis.limitations || []).map((lim) => {
                 const matchedEv = findEvidence(lim.evidenceIds?.[0]);
 
                 return (
-                  <div key={lim.id} className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E8EAEF] space-y-2">
+                  <div key={lim.id} className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 space-y-2">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
                         <span
                           className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${
                             lim.type === 'EXPLICIT'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-amber-100 text-amber-800'
+                              ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+                              : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
                           }`}
                         >
                           {lim.type} LIMITATION
                         </span>
 
-                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 text-[#1E293B]">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
                           Confidence: {lim.confidence}
                         </span>
                       </div>
 
-                      <span className="text-[11px] text-[#64748B]">
+                      <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
                         Page {lim.page} • {lim.section}
                       </span>
                     </div>
 
-                    <h4 className="text-xs font-bold text-[#1E293B]">{lim.title}</h4>
-                    <p className="text-xs text-[#64748B] leading-relaxed">{lim.explanation}</p>
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{lim.title}</h4>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{lim.explanation}</p>
 
                     <div className="pt-2 flex justify-end">
                       <button
                         onClick={() => setSelectedEvidence(matchedEv)}
-                        className="px-3 py-1.5 rounded-lg bg-[#F0F4F2] hover:bg-[#E2E8F0] text-[#064E3B] text-xs font-bold flex items-center gap-1.5 transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5 transition-colors border border-emerald-200 dark:border-emerald-800"
                       >
                         <FileText className="w-3.5 h-3.5" />
                         <span>[View Evidence]</span>
                       </button>
                     </div>
+
+                    <InsightFeedbackControl
+                      itemId={lim.id}
+                      itemType="limitation"
+                      itemTitle={lim.title}
+                    />
                   </div>
                 );
               })}
@@ -514,46 +552,52 @@ export const PaperAnalysisPage: React.FC = () => {
 
         {/* Research Gaps Section */}
         {(activeTabSection === 'all' || activeTabSection === 'gaps') && (
-          <div className="bg-white rounded-xl border border-[#E8EAEF] p-6 shadow-2xs space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[#E8EAEF]">
-              <h3 className="text-xs font-bold text-[#1E293B] uppercase tracking-wider flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#064E3B]" />
+          <div className="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200 dark:border-zinc-800 p-6 shadow-2xs space-y-4 transition-colors">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <h3 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
                 Evidence-Backed Research Gaps
               </h3>
-              <span className="text-xs text-[#64748B]">
-                {analysis.researchGaps.length} Actionable Gaps
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                {(analysis.researchGaps || []).length} Actionable Gaps
               </span>
             </div>
 
             <div className="space-y-3">
-              {analysis.researchGaps.map((gap) => {
+              {(analysis.researchGaps || []).map((gap) => {
                 const matchedEv = findEvidence(gap.evidenceIds?.[0]);
 
                 return (
-                  <div key={gap.id} className="p-4 rounded-xl bg-[#F8FAFC] border border-[#E8EAEF] space-y-2">
+                  <div key={gap.id} className="p-4 rounded-xl bg-zinc-50/80 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-800 space-y-2">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
-                        <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#064E3B] text-white uppercase">
+                        <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-emerald-800 dark:bg-emerald-700 text-white uppercase">
                           {gap.gapType}
                         </span>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-100 text-[#1E293B]">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200">
                           Confidence: {gap.confidence}
                         </span>
                       </div>
                     </div>
 
-                    <h4 className="text-xs font-bold text-[#1E293B]">{gap.title}</h4>
-                    <p className="text-xs text-[#64748B] leading-relaxed">{gap.explanation}</p>
+                    <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{gap.title}</h4>
+                    <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">{gap.explanation}</p>
 
                     <div className="pt-2 flex justify-end">
                       <button
                         onClick={() => setSelectedEvidence(matchedEv)}
-                        className="px-3 py-1.5 rounded-lg bg-[#F0F4F2] hover:bg-[#E2E8F0] text-[#064E3B] text-xs font-bold flex items-center gap-1.5 transition-colors"
+                        className="px-3 py-1.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/80 hover:bg-emerald-100 dark:hover:bg-emerald-900 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center gap-1.5 transition-colors border border-emerald-200 dark:border-emerald-800"
                       >
                         <FileText className="w-3.5 h-3.5" />
                         <span>[View Evidence]</span>
                       </button>
                     </div>
+
+                    <InsightFeedbackControl
+                      itemId={gap.id}
+                      itemType="research_gap"
+                      itemTitle={gap.title}
+                    />
                   </div>
                 );
               })}

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
-import { X, Database, Key, ShieldCheck, Trash2, Save, CheckCircle2 } from 'lucide-react';
+import { X, Database, Key, ShieldCheck, Trash2, Save, CheckCircle2, Sun, Moon } from 'lucide-react';
 
 export const SettingsModal: React.FC = () => {
-  const { isSettingsModalOpen, setIsSettingsModalOpen, settings, updateSettings, clearWorkspace } = usePaperContext();
+  const { isSettingsModalOpen, setIsSettingsModalOpen, settings, updateSettings, clearWorkspace, theme, toggleTheme } = usePaperContext();
   const [workspaceName, setWorkspaceName] = useState(settings.workspaceName);
   const [dbType, setDbType] = useState<'local' | 'firestore'>(settings.dbAdapterType);
   const [autoAnalyze, setAutoAnalyze] = useState(settings.autoAnalyzeOnUpload);
@@ -34,22 +34,22 @@ export const SettingsModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 bg-zinc-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl border border-zinc-200 shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xl max-w-md w-full overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-zinc-200">
+        <div className="flex items-center justify-between p-5 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-zinc-100 text-zinc-800 flex items-center justify-center font-bold text-sm">
+            <div className="w-8 h-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 flex items-center justify-center font-bold text-sm">
               ⚙️
             </div>
             <div>
-              <h3 className="text-sm font-bold text-zinc-900">Workspace Settings</h3>
-              <p className="text-xs text-zinc-500">Database abstraction & AI engine status</p>
+              <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Workspace Settings</h3>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">Database abstraction & UI configuration</p>
             </div>
           </div>
           <button
             onClick={() => setIsSettingsModalOpen(false)}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100"
+            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
             <X className="w-5 h-5" />
           </button>
@@ -60,22 +60,62 @@ export const SettingsModal: React.FC = () => {
           
           {/* Workspace Name */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1">
+            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
               Workspace Name
             </label>
             <input
               type="text"
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-zinc-300 text-xs focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
+              className="w-full px-3 py-2 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 text-xs focus:ring-2 focus:ring-emerald-800 focus:border-emerald-800"
             />
+          </div>
+
+          {/* Theme Switcher */}
+          <div>
+            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
+              Appearance & Atmosphere
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => theme === 'dark' && toggleTheme()}
+                className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 transition-all ${
+                  theme === 'light'
+                    ? 'bg-emerald-50 dark:bg-emerald-950 border-emerald-800 text-emerald-950 dark:text-emerald-200 ring-1 ring-emerald-800'
+                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
+                }`}
+              >
+                <Sun className="w-4 h-4 text-amber-500 shrink-0" />
+                <div>
+                  <p className="text-xs font-bold">Clean Minimal</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">Light Mode</p>
+                </div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => theme === 'light' && toggleTheme()}
+                className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 transition-all ${
+                  theme === 'dark'
+                    ? 'bg-emerald-950 border-emerald-700 text-emerald-200 ring-1 ring-emerald-700'
+                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
+                }`}
+              >
+                <Moon className="w-4 h-4 text-emerald-400 shrink-0" />
+                <div>
+                  <p className="text-xs font-bold">High-Contrast</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">Late-Night Dark</p>
+                </div>
+              </button>
+            </div>
           </div>
 
           {/* Database Abstraction Selection */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 mb-1 flex items-center justify-between">
+            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1 flex items-center justify-between">
               <span>Database Architecture Provider</span>
-              <span className="text-[10px] text-zinc-400 font-normal">Firestore Abstraction</span>
+              <span className="text-[10px] text-zinc-400 font-normal">Local & Cloud DB</span>
             </label>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -83,14 +123,14 @@ export const SettingsModal: React.FC = () => {
                 onClick={() => setDbType('local')}
                 className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 ${
                   dbType === 'local'
-                    ? 'bg-emerald-50 border-emerald-800 text-emerald-950 ring-1 ring-emerald-800'
-                    : 'bg-zinc-50 border-zinc-200 text-zinc-600'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/80 border-emerald-800 text-emerald-950 dark:text-emerald-200 ring-1 ring-emerald-800'
+                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                 }`}
               >
-                <Database className="w-4 h-4 text-emerald-800 shrink-0" />
+                <Database className="w-4 h-4 text-emerald-800 dark:text-emerald-400 shrink-0" />
                 <div>
-                  <p className="text-xs font-bold">Local DB Adapter</p>
-                  <p className="text-[10px] text-zinc-500 font-normal">Zero setup instant</p>
+                  <p className="text-xs font-bold">IndexedDB (Own Local DB)</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">On-device standalone DB</p>
                 </div>
               </button>
 
@@ -99,31 +139,31 @@ export const SettingsModal: React.FC = () => {
                 onClick={() => setDbType('firestore')}
                 className={`p-3 rounded-lg border text-left text-xs font-semibold flex items-center gap-2 ${
                   dbType === 'firestore'
-                    ? 'bg-emerald-50 border-emerald-800 text-emerald-950 ring-1 ring-emerald-800'
-                    : 'bg-zinc-50 border-zinc-200 text-zinc-600'
+                    ? 'bg-emerald-50 dark:bg-emerald-950/80 border-emerald-800 text-emerald-950 dark:text-emerald-200 ring-1 ring-emerald-800'
+                    : 'bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400'
                 }`}
               >
-                <Database className="w-4 h-4 text-emerald-800 shrink-0" />
+                <Database className="w-4 h-4 text-emerald-800 dark:text-emerald-400 shrink-0" />
                 <div>
                   <p className="text-xs font-bold">Firebase Firestore</p>
-                  <p className="text-[10px] text-zinc-500 font-normal">Cloud persistence</p>
+                  <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-normal">Cloud persistence</p>
                 </div>
               </button>
             </div>
           </div>
 
           {/* Gemini API Key Status */}
-          <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200 text-xs space-y-1">
+          <div className="p-3 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200 dark:border-zinc-800 text-xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className="font-semibold text-zinc-700 flex items-center gap-1.5">
-                <Key className="w-3.5 h-3.5 text-emerald-800" />
+              <span className="font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                <Key className="w-3.5 h-3.5 text-emerald-800 dark:text-emerald-400" />
                 Gemini AI Engine
               </span>
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                 Active & Configured
               </span>
             </div>
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
               Server-side API calls configured with GEMINI_API_KEY environment binding.
             </p>
           </div>
@@ -131,8 +171,8 @@ export const SettingsModal: React.FC = () => {
           {/* Auto Analyze Option */}
           <div className="flex items-center justify-between py-1">
             <div>
-              <p className="text-xs font-semibold text-zinc-800">Auto-Analyze on Upload</p>
-              <p className="text-[11px] text-zinc-500">Automatically trigger AI extraction on new paper upload</p>
+              <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Auto-Analyze on Upload</p>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Automatically trigger AI extraction on new paper upload</p>
             </div>
             <input
               type="checkbox"
@@ -143,10 +183,10 @@ export const SettingsModal: React.FC = () => {
           </div>
 
           {/* Danger Zone: Clear Workspace */}
-          <div className="pt-3 border-t border-zinc-200">
+          <div className="pt-3 border-t border-zinc-200 dark:border-zinc-800">
             <button
               onClick={handleClear}
-              className="w-full px-3 py-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-800 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-rose-200 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-950 text-rose-800 dark:text-rose-300 text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
               <span>Clear Workspace & Reset Papers</span>
@@ -156,16 +196,16 @@ export const SettingsModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-zinc-50 border-t border-zinc-200 flex items-center justify-end gap-2">
+        <div className="p-4 bg-zinc-50 dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-end gap-2">
           <button
             onClick={() => setIsSettingsModalOpen(false)}
-            className="px-3.5 py-2 rounded-lg border border-zinc-200 text-xs font-semibold text-zinc-700 hover:bg-zinc-100"
+            className="px-3.5 py-2 rounded-lg border border-zinc-200 dark:border-zinc-800 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="px-4 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-semibold flex items-center gap-1.5"
+            className="px-4 py-2 rounded-lg bg-emerald-800 hover:bg-emerald-900 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white text-xs font-semibold flex items-center gap-1.5"
           >
             {isSaved ? <CheckCircle2 className="w-4 h-4 text-white" /> : <Save className="w-4 h-4" />}
             <span>{isSaved ? 'Saved!' : 'Save Settings'}</span>
@@ -176,3 +216,4 @@ export const SettingsModal: React.FC = () => {
     </div>
   );
 };
+

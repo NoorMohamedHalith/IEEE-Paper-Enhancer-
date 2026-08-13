@@ -3,6 +3,7 @@ import { usePaperContext } from '../../context/PaperContext';
 import { WorkflowStepper } from '../layout/WorkflowStepper';
 import { EmptyStateCard } from '../common/EmptyStateCard';
 import { BenchmarkRunner } from '../common/BenchmarkRunner';
+import { ValidationProgressTracker } from '../common/ValidationProgressTracker';
 import { InteractiveTraceabilityChain, TraceabilityChainItem } from '../common/InteractiveTraceabilityChain';
 import { PredictionMetric, ValidationPlanItem, ResultState } from '../../types';
 import {
@@ -21,9 +22,11 @@ import {
 export const ValidationPage: React.FC = () => {
   const { activePaper, setActiveTab, setIsUploadModalOpen } = usePaperContext();
 
-  const selectedIds = activePaper?.selectedEnhancementIds || [];
+  const rawSelected = activePaper?.selectedEnhancementIds || [];
   const analysis = activePaper?.analysis;
-  const recommendations = analysis?.recommendations?.filter((r) => selectedIds.includes(r.id)) || [];
+  const allRecs = analysis?.recommendations || [];
+  const selectedIds = rawSelected.length > 0 ? rawSelected : allRecs.map((r) => r.id);
+  const recommendations = allRecs.filter((r) => selectedIds.includes(r.id));
 
   // Generate or initialize Prediction Metrics
   const [predictionMetrics, setPredictionMetrics] = useState<PredictionMetric[]>([]);
@@ -103,17 +106,21 @@ export const ValidationPage: React.FC = () => {
   };
 
   // Construct Traceability Chain Items
-  const traceabilityChainItems: TraceabilityChainItem[] = recommendations.map((rec, idx) => {
+  const limitations = analysis?.limitations || [];
+  const gaps = analysis?.researchGaps || [];
+  const evidences = analysis?.evidences || [];
+
+  const traceabilityChainItems: TraceabilityChainItem[] = (recommendations || []).map((rec, idx) => {
     const matchingLimitation =
-      analysis.limitations.find((l) => l.id === rec.limitationId) ||
-      analysis.limitations[idx] ||
-      analysis.limitations[0];
+      limitations.find((l) => l.id === rec.limitationId) ||
+      limitations[idx] ||
+      limitations[0];
     const matchingGap =
-      analysis.researchGaps.find((g) => g.id === rec.researchGapId) ||
-      analysis.researchGaps[0];
+      gaps.find((g) => g.id === rec.researchGapId) ||
+      gaps[0];
     const matchingEvidence =
-      analysis.evidences.find((e) => rec.evidenceIds?.includes(e.id)) ||
-      analysis.evidences[0];
+      evidences.find((e) => rec.evidenceIds?.includes(e.id)) ||
+      evidences[0];
     const matchingMetric =
       predictionMetrics.find((m) => m.enhancementId === rec.id) || {
         metricName: rec.validationMetric,
@@ -201,6 +208,12 @@ export const ValidationPage: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Visual Progress Tracking Component for Validation Workflow */}
+      <ValidationProgressTracker
+        paper={activePaper}
+        predictionMetrics={predictionMetrics}
+      />
 
       {/* Practical Software Validation Plan Grid */}
       <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs space-y-4">

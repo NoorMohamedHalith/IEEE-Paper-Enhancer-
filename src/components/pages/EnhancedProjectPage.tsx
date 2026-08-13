@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
+import { downloadElementAsPDF, triggerPrint } from '../../utils/printUtils';
 import { WorkflowStepper } from '../layout/WorkflowStepper';
 import { EmptyStateCard } from '../common/EmptyStateCard';
 import { ArchitectureGraph } from '../common/ArchitectureGraph';
@@ -22,7 +23,8 @@ import {
   HelpCircle,
   Copy,
   Check,
-  ArrowRight
+  ArrowRight,
+  Loader2
 } from 'lucide-react';
 
 export const EnhancedProjectPage: React.FC = () => {
@@ -30,6 +32,8 @@ export const EnhancedProjectPage: React.FC = () => {
   const [projectSpec, setProjectSpec] = useState<EnhancedProjectSpec | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [copied, setCopied] = useState<boolean>(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState<boolean>(false);
+  const [pdfStatus, setPdfStatus] = useState<string>('');
 
   const selectedIds = activePaper?.selectedEnhancementIds || [];
   const analysis = activePaper?.analysis;
@@ -90,6 +94,15 @@ export const EnhancedProjectPage: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const handleDownloadPDF = async () => {
+    if (isGeneratingPDF) return;
+    setIsGeneratingPDF(true);
+    setPdfStatus('Generating PDF...');
+    const filename = `Enhanced_Project_Spec_${activePaper?.id?.slice(0, 8) || 'Report'}.pdf`;
+    await downloadElementAsPDF('printable-enhanced-project', filename, (msg) => setPdfStatus(msg));
+    setIsGeneratingPDF(false);
+  };
+
   const handleCopySummary = () => {
     if (!projectSpec) return;
     const text = `PROJECT PROPOSAL: ${projectSpec.projectTitle}\nConcept: ${projectSpec.oneLineConcept}\nProblem: ${projectSpec.problemStatement}\nSolution: ${projectSpec.proposedSolution}`;
@@ -99,18 +112,22 @@ export const EnhancedProjectPage: React.FC = () => {
   };
 
   // Construct Traceability Chain Items
-  const traceabilityChainItems: TraceabilityChainItem[] = selectedRecommendations.map(
+  const traceabilityChainItems: TraceabilityChainItem[] = (selectedRecommendations || []).map(
     (rec, idx) => {
+      const limitations = analysis?.limitations || [];
+      const gaps = analysis?.researchGaps || [];
+      const evidences = analysis?.evidences || [];
+
       const matchingLimitation =
-        analysis.limitations.find((l) => l.id === rec.limitationId) ||
-        analysis.limitations[idx] ||
-        analysis.limitations[0];
+        limitations.find((l) => l.id === rec.limitationId) ||
+        limitations[idx] ||
+        limitations[0];
       const matchingGap =
-        analysis.researchGaps.find((g) => g.id === rec.researchGapId) ||
-        analysis.researchGaps[0];
+        gaps.find((g) => g.id === rec.researchGapId) ||
+        gaps[0];
       const matchingEvidence =
-        analysis.evidences.find((e) => rec.evidenceIds?.includes(e.id)) ||
-        analysis.evidences[0];
+        evidences.find((e) => rec.evidenceIds?.includes(e.id)) ||
+        evidences[0];
 
       return {
         id: `chain-${rec.id}`,
@@ -130,7 +147,7 @@ export const EnhancedProjectPage: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6 pb-20">
+    <div id="printable-enhanced-project" className="space-y-6 pb-20">
       <WorkflowStepper />
 
       {/* Hero Header & Proposal Actions */}
@@ -163,11 +180,17 @@ export const EnhancedProjectPage: React.FC = () => {
             </button>
 
             <button
-              onClick={() => window.print()}
-              className="px-3 py-2 rounded-lg border border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+              onClick={handleDownloadPDF}
+              disabled={isGeneratingPDF}
+              className="px-3.5 py-2 rounded-lg border border-emerald-700 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-300 text-xs font-bold flex items-center gap-2 transition-colors disabled:opacity-50"
+              title="Download PDF document directly to your device"
             >
-              <Printer className="w-4 h-4 text-zinc-600" />
-              <span>Print / Save PDF</span>
+              {isGeneratingPDF ? (
+                <Loader2 className="w-4 h-4 animate-spin text-emerald-800" />
+              ) : (
+                <Printer className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
+              )}
+              <span>{isGeneratingPDF ? (pdfStatus || 'Generating PDF...') : 'Print / Download PDF'}</span>
             </button>
 
             <button
@@ -216,7 +239,7 @@ export const EnhancedProjectPage: React.FC = () => {
           <div className="pt-2 border-t border-zinc-100">
             <span className="text-[11px] font-semibold text-zinc-500 block mb-1.5">Grounded Paper Limitations:</span>
             <ul className="space-y-1">
-              {analysis.limitations.map((lim, idx) => (
+              {(analysis.limitations || []).map((lim, idx) => (
                 <li key={idx} className="text-xs text-zinc-700 bg-rose-50/50 p-2 rounded border border-rose-100 flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-rose-600 mt-1.5 shrink-0" />
                   <span><strong>{lim.title}:</strong> {lim.explanation}</span>
@@ -261,7 +284,7 @@ export const EnhancedProjectPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {projectSpec.softwareModules.map((mod, idx) => (
+            {(projectSpec?.softwareModules || []).map((mod, idx) => (
               <div key={idx} className="p-5 rounded-xl bg-zinc-50 border border-zinc-200 space-y-3">
                 <div className="flex items-center justify-between pb-2 border-b border-zinc-200">
                   <span className="text-xs font-bold text-zinc-900 flex items-center gap-1.5 font-mono">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { PaperEvidence, GroundedLimitation, GroundedResearchGap, EnhancementRecommendation, PredictionMetric } from '../../types';
+import { sanitizeEvidenceQuote } from '../../utils/textSanitizer';
 import { FileText, ShieldAlert, Sparkles, Zap, Layers, CheckCircle2, ChevronRight, ArrowRight, Check } from 'lucide-react';
 
 export interface TraceabilityChainItem {
@@ -62,9 +63,9 @@ export const InteractiveTraceabilityChain: React.FC<InteractiveTraceabilityChain
         </div>
 
         {/* Chain Switcher if multiple items exist */}
-        {items.length > 1 && (
+        {(items || []).length > 1 && (
           <div className="flex items-center gap-1.5 overflow-x-auto">
-            {items.map((_, idx) => (
+            {(items || []).map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedChainIndex(idx)}
@@ -86,7 +87,7 @@ export const InteractiveTraceabilityChain: React.FC<InteractiveTraceabilityChain
 
       {/* Interactive Horizontal Flow Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
-        {steps.map((step) => {
+        {(steps || []).map((step) => {
           const StepIcon = step.icon;
           const isActive = selectedStep === step.id;
 
@@ -130,7 +131,7 @@ export const InteractiveTraceabilityChain: React.FC<InteractiveTraceabilityChain
             </div>
 
             <div className="p-4 rounded-xl bg-white border border-zinc-200 italic text-xs text-zinc-800 leading-relaxed">
-              "{currentItem.evidence.quoteOrExcerpt || 'Extract demonstrating system limitation.'}"
+              "{sanitizeEvidenceQuote(currentItem.evidence.quoteOrExcerpt)}"
             </div>
 
             <p className="text-[11px] text-zinc-500">

@@ -60,7 +60,7 @@ export const ArchitectureGraph: React.FC<ArchitectureGraphProps> = ({ data, clas
           </div>
 
           <div className="flex flex-col gap-2.5">
-            {data.existingFlow.map((node, idx) => (
+            {(data?.existingFlow || []).map((node, idx) => (
               <React.Fragment key={node.id}>
                 <div className="p-3 rounded-lg bg-white border border-zinc-200 flex items-center justify-between text-xs font-medium text-zinc-800 shadow-2xs">
                   <div className="flex items-center gap-2.5">
@@ -93,7 +93,7 @@ export const ArchitectureGraph: React.FC<ArchitectureGraphProps> = ({ data, clas
           </div>
 
           <div className="flex flex-col gap-2.5">
-            {data.enhancedFlow.map((node, idx) => {
+            {(data?.enhancedFlow || []).map((node, idx) => {
               const isSelected = activeNode?.id === node.id;
               return (
                 <React.Fragment key={node.id}>

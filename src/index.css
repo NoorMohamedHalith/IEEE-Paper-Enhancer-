@@ -1,1 +1,106 @@
 @import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* ==========================================================================
+   IEEE InnovateX — Global Print Stylesheet for Physical Paper & PDF Export
+   ========================================================================== */
+@media print {
+  /* 1. Hide UI Navigation, Chrome, Drawers, Floating Toasts, and Interactive Controls */
+  header,
+  aside,
+  nav,
+  button,
+  input,
+  select,
+  textarea,
+  .no-print,
+  .sticky,
+  [role="dialog"] > div > div:first-child,
+  .toast-container,
+  [title*="Settings"],
+  [title*="Auto-saved"] {
+    display: none !important;
+  }
+
+  /* 2. Global Document & Page Geometry */
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 12mm 15mm;
+  }
+
+  html, body, #root, main {
+    background: #ffffff !important;
+    color: #000000 !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Reset layout grids and containers for fluid multi-page flow */
+  main, .max-w-7xl, .max-w-4xl, .container {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  /* Force high-contrast text rendering and clean borders */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Prevent awkward page breaks inside cards, section blocks, table rows, and metrics */
+  section, article, table, tr, .bg-white, .bg-zinc-50, .rounded-xl, .rounded-2xl {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Force page breaks before major report sections if tagged */
+  .page-break-before, .break-before-page {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* 3. Modal Specific Print Reset (for ResearchReportModal) */
+  #printable-research-report {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: none !important;
+    visibility: visible !important;
+  }
+
+  #printable-research-report * {
+    visibility: visible !important;
+  }
+
+  /* Dark mode overrides when printing */
+  .dark {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .dark * {
+    color: #000000 !important;
+    border-color: #e5e7eb !important;
+    background-color: transparent !important;
+  }
+}
+

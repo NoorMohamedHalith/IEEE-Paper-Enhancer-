@@ -18,7 +18,7 @@ export const DashboardPage: React.FC = () => {
 
   if (activePaper) {
     if (activePaper.analysis) {
-      gapsCountDisplay = activePaper.analysis.researchGaps.length;
+      gapsCountDisplay = activePaper.analysis.researchGaps?.length || 0;
       enhancementsCountDisplay = activePaper.analysis.recommendations?.length || 0;
     }
     projectStatusDisplay = activePaper.projectStatus || 'Awaiting Analysis';
@@ -211,7 +211,7 @@ export const DashboardPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
               <span className="font-bold text-zinc-900 block text-xs">2. What was the original system?</span>
               <p className="text-zinc-700 line-clamp-2">
-                {activePaper.analysis.methodology.processing || activePaper.analysis.paperSummary}
+                {activePaper.analysis.methodology?.processing || activePaper.analysis.paperSummary || 'N/A'}
               </p>
             </div>
 
@@ -219,7 +219,7 @@ export const DashboardPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
               <span className="font-bold text-zinc-900 block text-xs">3. What limitations were identified?</span>
               <ul className="list-disc list-inside text-zinc-700 space-y-0.5">
-                {activePaper.analysis.limitations.slice(0, 2).map((lim, i) => (
+                {(activePaper.analysis.limitations || []).slice(0, 2).map((lim, i) => (
                   <li key={i} className="line-clamp-1">{lim.title}</li>
                 ))}
               </ul>
@@ -229,7 +229,7 @@ export const DashboardPage: React.FC = () => {
             <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
               <span className="font-bold text-zinc-900 block text-xs">4. What research gaps were found?</span>
               <ul className="list-disc list-inside text-zinc-700 space-y-0.5">
-                {activePaper.analysis.researchGaps.slice(0, 2).map((gap, i) => (
+                {(activePaper.analysis.researchGaps || []).slice(0, 2).map((gap, i) => (
                   <li key={i} className="line-clamp-1">{gap.title} ({gap.gapType})</li>
                 ))}
               </ul>

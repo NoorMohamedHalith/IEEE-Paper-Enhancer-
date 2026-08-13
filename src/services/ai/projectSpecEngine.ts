@@ -125,9 +125,9 @@ export function generateClientDynamicProjectSpec(paper: IEEEPaper): EnhancedProj
         'Uncached Model Processing Engine',
         'Standard Static Prediction Output'
       ],
-      limitations: analysis?.limitations.map((l) => l.title) || [primaryLimitation]
+      limitations: (analysis?.limitations || []).map((l) => l.title),
     },
-    researchGaps: analysis?.researchGaps.map((g) => g.title) || [primaryGap],
+    researchGaps: (analysis?.researchGaps || []).map((g) => g.title),
     selectedEnhancements: activeRecs.map((r) => ({
       id: r.id,
       title: r.title,

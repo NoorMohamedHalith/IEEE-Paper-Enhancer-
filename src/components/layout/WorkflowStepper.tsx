@@ -32,12 +32,18 @@ export const WorkflowStepper: React.FC = () => {
           // Check paper stage completed status
           let isCompleted = false;
           if (activePaper) {
-            if (step.id === 1 && activePaper) isCompleted = true;
-            if (step.id === 2 && activePaper.status === 'Analyzed') isCompleted = true;
-            if (step.id === 3 && activePaper.analysis?.researchGaps.length) isCompleted = true;
-            if (step.id === 4 && (activePaper.selectedEnhancementIds?.length || 0) > 0) isCompleted = true;
-            if (step.id === 5 && (activePaper.validatedEnhancementIds?.length || 0) > 0) isCompleted = true;
-            if (step.id === 6 && activePaper.validatedEnhancementIds?.length) isCompleted = true;
+            const isAnalyzed = activePaper.status === 'Analyzed';
+            const hasGaps = (activePaper.analysis?.researchGaps?.length || 0) > 0;
+            const hasRecs = (activePaper.analysis?.recommendations?.length || 0) > 0;
+            const hasSelected = (activePaper.selectedEnhancementIds?.length || 0) > 0;
+            const hasValidated = (activePaper.validatedEnhancementIds?.length || 0) > 0;
+
+            if (step.id === 1) isCompleted = true;
+            if (step.id === 2) isCompleted = isAnalyzed;
+            if (step.id === 3) isCompleted = isAnalyzed && (hasGaps || step.id <= currentStep.id);
+            if (step.id === 4) isCompleted = isAnalyzed && (hasRecs || hasSelected || step.id <= currentStep.id);
+            if (step.id === 5) isCompleted = isAnalyzed && (hasRecs || hasValidated || step.id <= currentStep.id);
+            if (step.id === 6) isCompleted = isAnalyzed && (hasRecs || hasValidated || currentStep.id === 6);
           }
 
           return (
@@ -68,7 +74,11 @@ export const WorkflowStepper: React.FC = () => {
                   }
                 `}
               >
-                {isCompleted ? <Check className="w-3.5 h-3.5 text-emerald-800" /> : step.id}
+                {isCompleted ? (
+                  <Check className={`w-3.5 h-3.5 ${isCurrent ? 'text-white' : 'text-emerald-800'}`} />
+                ) : (
+                  step.id
+                )}
               </div>
 
               {/* Step Label */}

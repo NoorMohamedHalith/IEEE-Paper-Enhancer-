@@ -4,6 +4,7 @@ import { WorkflowStepper } from '../layout/WorkflowStepper';
 import { EmptyStateCard } from '../common/EmptyStateCard';
 import { EvidenceModal } from '../common/EvidenceModal';
 import { SelectedEnhancementsDragDrop } from '../common/SelectedEnhancementsDragDrop';
+import { EnhancementDependencyTree } from '../common/EnhancementDependencyTree';
 import { EnhancementRecommendation, PaperEvidence, IEEEPaper } from '../../types';
 import { generateClientDynamicRecommendations } from '../../services/ai/recommendationEngine';
 import {
@@ -77,6 +78,7 @@ export const EnhancementsPage: React.FC = () => {
   const [expandedBreakdownId, setExpandedBreakdownId] = useState<string | null>(null);
   const [expandedTraceabilityId, setExpandedTraceabilityId] = useState<string | null>(null);
   const [isApprovalModalOpen, setIsApprovalModalOpen] = useState<boolean>(false);
+  const [queueView, setQueueView] = useState<'tree' | 'queue'>('tree');
 
   // Categories list
   const categories = ['All', ...Array.from(new Set(recommendations.map((r) => r.category)))];
@@ -213,12 +215,56 @@ export const EnhancementsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Selected Enhancements Prioritization Drag & Drop Queue */}
-      <SelectedEnhancementsDragDrop
-        paperId={currentPaper.id}
-        recommendations={recommendations}
-        selectedIds={selectedIds}
-      />
+      {/* Queue View Switcher Banner */}
+      <div className="flex items-center justify-between gap-3 bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-2.5 shadow-2xs">
+        <div className="flex items-center gap-2 px-3">
+          <Layers className="w-4 h-4 text-emerald-800 dark:text-emerald-400" />
+          <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
+            Implementation Planning & Priority View
+          </span>
+        </div>
+
+        <div className="flex items-center bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl text-xs font-semibold">
+          <button
+            onClick={() => setQueueView('tree')}
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              queueView === 'tree'
+                ? 'bg-emerald-800 text-white dark:bg-emerald-700 shadow-2xs font-bold'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Visual Dependency Tree</span>
+          </button>
+
+          <button
+            onClick={() => setQueueView('queue')}
+            className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 ${
+              queueView === 'queue'
+                ? 'bg-emerald-800 text-white dark:bg-emerald-700 shadow-2xs font-bold'
+                : 'text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            <span>Interactive Priority Queue ({selectedIds.length})</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Selected Enhancements Dependency Tree vs Drag & Drop Queue */}
+      {queueView === 'tree' ? (
+        <EnhancementDependencyTree
+          paperId={currentPaper.id}
+          recommendations={recommendations}
+          selectedIds={selectedIds}
+        />
+      ) : (
+        <SelectedEnhancementsDragDrop
+          paperId={currentPaper.id}
+          recommendations={recommendations}
+          selectedIds={selectedIds}
+        />
+      )}
 
       {/* Recommendations Cards Grid */}
       <div className="space-y-4">
@@ -411,7 +457,7 @@ export const EnhancementsPage: React.FC = () => {
                         Dependencies & Software Requirements
                       </span>
                       <div className="flex flex-wrap gap-1.5">
-                        {rec.dependencies.map((dep, idx) => (
+                        {(rec.dependencies || []).map((dep, idx) => (
                           <span
                             key={idx}
                             className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#F0F4F2] text-[#064E3B] border border-[#CBD5E1]"

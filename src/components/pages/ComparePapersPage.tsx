@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
+import { downloadElementAsPDF, triggerPrint } from '../../utils/printUtils';
 import { WorkflowStepper } from '../layout/WorkflowStepper';
 import { EmptyStateCard } from '../common/EmptyStateCard';
 import { IEEEPaper, PaperEvidence } from '../../types';
@@ -17,7 +18,8 @@ import {
   BookOpen,
   ArrowRight,
   ShieldCheck,
-  Columns
+  Columns,
+  Loader2
 } from 'lucide-react';
 
 export const ComparePapersPage: React.FC = () => {
@@ -70,9 +72,17 @@ export const ComparePapersPage: React.FC = () => {
     downloadAnchor.remove();
   };
 
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfStatus, setPdfStatus] = useState('');
+
   // Export printable view / PDF
-  const handlePrintPDF = () => {
-    window.print();
+  const handlePrintPDF = async () => {
+    if (isGeneratingPDF) return;
+    setIsGeneratingPDF(true);
+    setPdfStatus('Generating PDF...');
+    const filename = `IEEE_Paper_Comparison_${paperA?.id || 'A'}_vs_${paperB?.id || 'B'}.pdf`;
+    await downloadElementAsPDF('printable-compare-papers', filename, (msg) => setPdfStatus(msg));
+    setIsGeneratingPDF(false);
   };
 
   if (analyzedPapers.length === 0) {
@@ -99,7 +109,7 @@ export const ComparePapersPage: React.FC = () => {
   const methB = typeof analysisB?.methodology === 'object' ? analysisB.methodology : null;
 
   return (
-    <div className="space-y-6">
+    <div id="printable-compare-papers" className="space-y-6">
       <WorkflowStepper />
 
       {/* Header & Controls */}
@@ -134,10 +144,15 @@ export const ComparePapersPage: React.FC = () => {
             </button>
             <button
               onClick={handlePrintPDF}
-              className="px-3.5 py-2 rounded-lg bg-[#064E3B] hover:bg-[#053F2F] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+              disabled={isGeneratingPDF}
+              className="px-3.5 py-2 rounded-lg bg-[#064E3B] hover:bg-[#053F2F] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs disabled:opacity-60"
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Print / Save PDF</span>
+              {isGeneratingPDF ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Printer className="w-3.5 h-3.5" />
+              )}
+              <span>{isGeneratingPDF ? (pdfStatus || 'Generating PDF...') : 'Download PDF'}</span>
             </button>
           </div>
         </div>

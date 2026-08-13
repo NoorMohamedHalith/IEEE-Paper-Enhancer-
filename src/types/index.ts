@@ -107,6 +107,8 @@ export interface IEEEPaper {
   analysis?: PaperAnalysis;
   selectedEnhancementIds?: string[];
   validatedEnhancementIds?: string[];
+  approvedGapIds?: string[];
+  feedbackMap?: Record<string, InsightFeedback>;
   projectStatus?: 'Not Started' | 'In Analysis' | 'Enhancements Selected' | 'Validated' | 'Project Generated';
   isScanned?: boolean;
   isOcrProcessed?: boolean;
@@ -197,6 +199,7 @@ export interface EnhancementRecommendation {
   relevanceBreakdown?: RelevanceBreakdown;
   evidenceIds: string[];
   dependencies: string[];
+  dependsOnIds?: string[];
   risks: string[];
   validationMetric: string;
   confidence: 'High' | 'Medium' | 'Low';
@@ -346,3 +349,38 @@ export interface EnhancedProjectSpec {
   limitationsOfEnhancement: string[];
   futureWork: string[];
 }
+
+export type ActivityActionType =
+  | 'upload'
+  | 'analysis'
+  | 'enhancement_selection'
+  | 'gap_approval'
+  | 'validation'
+  | 'report_export'
+  | 'settings_update'
+  | 'feedback_submitted'
+  | 'clear_workspace';
+
+export interface ActivityLog {
+  id: string;
+  timestamp: string;
+  actionType: ActivityActionType;
+  details: string;
+  paperId?: string;
+  paperTitle?: string;
+  metadata?: Record<string, any>;
+}
+
+export type RelevanceRating = 'relevant' | 'somewhat_relevant' | 'irrelevant';
+
+export interface InsightFeedback {
+  id: string;
+  itemId: string;
+  itemType: 'limitation' | 'research_gap' | 'result' | 'summary' | 'evidence';
+  itemTitle: string;
+  paperId: string;
+  rating: RelevanceRating;
+  comment?: string;
+  timestamp: string;
+}
+

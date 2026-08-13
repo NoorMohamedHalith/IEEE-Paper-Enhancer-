@@ -1,4 +1,4 @@
-import { IEEEPaper, WorkspaceSettings } from '../../types';
+import { IEEEPaper, WorkspaceSettings, ActivityLog } from '../../types';
 
 export interface IDatabaseAdapter {
   getPapers(): Promise<IEEEPaper[]>;
@@ -8,10 +8,14 @@ export interface IDatabaseAdapter {
   getSettings(): Promise<WorkspaceSettings>;
   saveSettings(settings: WorkspaceSettings): Promise<void>;
   clearWorkspace(): Promise<void>;
+  getActivityLogs(): Promise<ActivityLog[]>;
+  logActivity(log: Omit<ActivityLog, 'id' | 'timestamp'> & { id?: string; timestamp?: string }): Promise<ActivityLog>;
+  clearActivityLogs(): Promise<void>;
 }
 
 const STORAGE_KEY_PAPERS = 'ieee_innovatex_papers_v1';
 const STORAGE_KEY_SETTINGS = 'ieee_innovatex_settings_v1';
+const STORAGE_KEY_AUDIT_LOGS = 'ieee_innovatex_audit_logs_v1';
 
 export class LocalStorageAdapter implements IDatabaseAdapter {
   async getPapers(): Promise<IEEEPaper[]> {
@@ -67,6 +71,36 @@ export class LocalStorageAdapter implements IDatabaseAdapter {
   async clearWorkspace(): Promise<void> {
     localStorage.removeItem(STORAGE_KEY_PAPERS);
   }
+
+  async getActivityLogs(): Promise<ActivityLog[]> {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY_AUDIT_LOGS);
+      return data ? JSON.parse(data) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  async logActivity(log: Omit<ActivityLog, 'id' | 'timestamp'> & { id?: string; timestamp?: string }): Promise<ActivityLog> {
+    const logs = await this.getActivityLogs();
+    const newLog: ActivityLog = {
+      id: log.id || `act_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      timestamp: log.timestamp || new Date().toISOString(),
+      actionType: log.actionType,
+      details: log.details,
+      paperId: log.paperId,
+      paperTitle: log.paperTitle,
+      metadata: log.metadata,
+    };
+    logs.unshift(newLog);
+    const trimmed = logs.slice(0, 200);
+    localStorage.setItem(STORAGE_KEY_AUDIT_LOGS, JSON.stringify(trimmed));
+    return newLog;
+  }
+
+  async clearActivityLogs(): Promise<void> {
+    localStorage.removeItem(STORAGE_KEY_AUDIT_LOGS);
+  }
 }
 
 export class FirestoreAdapterStub implements IDatabaseAdapter {
@@ -101,14 +135,28 @@ export class FirestoreAdapterStub implements IDatabaseAdapter {
   async clearWorkspace(): Promise<void> {
     return this.localFallback.clearWorkspace();
   }
+
+  async getActivityLogs(): Promise<ActivityLog[]> {
+    return this.localFallback.getActivityLogs();
+  }
+
+  async logActivity(log: Omit<ActivityLog, 'id' | 'timestamp'> & { id?: string; timestamp?: string }): Promise<ActivityLog> {
+    return this.localFallback.logActivity(log);
+  }
+
+  async clearActivityLogs(): Promise<void> {
+    return this.localFallback.clearActivityLogs();
+  }
 }
+
+import { IndexedDBAdapter } from './indexedDBAdapter';
 
 export class DatabaseService {
   private static instance: DatabaseService;
   private adapter: IDatabaseAdapter;
 
   private constructor() {
-    this.adapter = new LocalStorageAdapter();
+    this.adapter = new IndexedDBAdapter();
   }
 
   public static getInstance(): DatabaseService {
@@ -122,7 +170,7 @@ export class DatabaseService {
     if (type === 'firestore') {
       this.adapter = new FirestoreAdapterStub();
     } else {
-      this.adapter = new LocalStorageAdapter();
+      this.adapter = new IndexedDBAdapter();
     }
   }
 

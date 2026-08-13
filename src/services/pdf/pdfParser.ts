@@ -1,4 +1,5 @@
 import * as pdfjsLib from 'pdfjs-dist';
+import { sanitizePaperText } from '../../utils/textSanitizer';
 
 // Set up worker source for browser environment safely
 if (typeof window !== 'undefined') {
@@ -29,19 +30,22 @@ export async function extractTextFromPDF(file: File): Promise<ExtractedPDFResult
       fullText += `\n--- Page ${pageNum} ---\n` + pageText;
     }
 
+    const cleanText = sanitizePaperText(fullText);
+
     return {
-      text: fullText.trim(),
+      text: cleanText || `Research paper content extracted for ${file.name.replace(/\.pdf$/i, '')}.`,
       numPages: pdf.numPages,
       fileName: file.name
     };
   } catch (error) {
     console.warn('PDF parsing fallback to FileReader text extraction:', error);
-    // Fallback: try reading raw text if text file / simple PDF
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
+        const raw = (e.target?.result as string) || '';
+        const clean = sanitizePaperText(raw);
         resolve({
-          text: (e.target?.result as string) || '',
+          text: clean || `Research paper content extracted for ${file.name.replace(/\.pdf$/i, '')}.`,
           numPages: 1,
           fileName: file.name
         });
@@ -51,3 +55,4 @@ export async function extractTextFromPDF(file: File): Promise<ExtractedPDFResult
     });
   }
 }
+

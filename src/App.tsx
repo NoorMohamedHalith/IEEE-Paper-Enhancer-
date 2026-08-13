@@ -4,6 +4,9 @@ import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
 import { UploadModal } from './components/common/UploadModal';
 import { SettingsModal } from './components/common/SettingsModal';
+import { ResearchReportModal } from './components/common/ResearchReportModal';
+import { AuditTrailModal } from './components/common/AuditTrailModal';
+import { AutoSaveToast } from './components/common/AutoSaveToast';
 
 import { DashboardPage } from './components/pages/DashboardPage';
 import { PapersPage } from './components/pages/PapersPage';
@@ -42,7 +45,7 @@ const MainContent: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-zinc-900 flex flex-col font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 flex flex-col font-sans antialiased selection:bg-emerald-100 selection:text-emerald-900 transition-colors">
       {/* Top Header */}
       <Header onOpenMobileMenu={() => setIsMobileOpen(true)} />
 
@@ -60,9 +63,12 @@ const MainContent: React.FC = () => {
         </main>
       </div>
 
-      {/* Modals */}
+      {/* Modals & Notifications */}
       <UploadModal />
       <SettingsModal />
+      <ResearchReportModal />
+      <AuditTrailModal />
+      <AutoSaveToast />
     </div>
   );
 };
