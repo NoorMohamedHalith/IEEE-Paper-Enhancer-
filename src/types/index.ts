@@ -317,6 +317,8 @@ export interface ValidationPlanItem {
 export interface ResearchNovelty {
   addressedLimitation: string;
   technicalNovelty: string;
+  engineeringContribution: string;
+  academicOriginality: string;
   aiContribution: string;
   edgeContribution: string;
   iotIntegrationApproach: string;

@@ -6,6 +6,8 @@ import { EmptyStateCard } from '../common/EmptyStateCard';
 import { EvidenceModal } from '../common/EvidenceModal';
 import { InsightFeedbackControl } from '../common/InsightFeedbackControl';
 import { AnalysisDashboard } from '../analysis/AnalysisDashboard';
+import { BeforeAfterComparison } from '../common/BeforeAfterComparison';
+import { ArchitectureGraph } from '../common/ArchitectureGraph';
 import { PaperEvidence } from '../../types';
 import {
   FileSearch,
@@ -427,6 +429,16 @@ export const PaperAnalysisPage: React.FC = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Old vs New Architecture Comparison */}
+        {(activeTabSection === 'all' || activeTabSection === 'methodology') && (
+          <div className="space-y-6">
+            <BeforeAfterComparison data={analysis.beforeAfterComparison} />
+            {analysis.architectureGraphData && (
+              <ArchitectureGraph data={analysis.architectureGraphData} />
+            )}
           </div>
         )}
 

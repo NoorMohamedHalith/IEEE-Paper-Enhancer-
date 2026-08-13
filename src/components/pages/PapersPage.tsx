@@ -300,10 +300,11 @@ export const PapersPage: React.FC = () => {
 
                     <button
                       onClick={() => removePaper(paper.id)}
-                      className="p-1.5 text-zinc-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                      title="Remove paper"
+                      className="px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                      title="Remove paper from workspace"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Remove Paper</span>
                     </button>
                   </div>
                 </div>

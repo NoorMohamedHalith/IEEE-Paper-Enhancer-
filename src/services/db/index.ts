@@ -35,7 +35,43 @@ export class LocalStorageAdapter implements IDatabaseAdapter {
     } else {
       papers.unshift(paper);
     }
-    localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(papers));
+
+    // Limit papers list to top 5 most recent papers if needed
+    const papersToSave = papers.slice(0, 5);
+
+    try {
+      localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(papersToSave));
+    } catch (quotaError) {
+      console.warn('LocalStorage quota exceeded. Truncating raw paper text to fit storage quota...', quotaError);
+      
+      // Sanitize papers by trimming heavy rawText layers to prevent localStorage quota crash
+      const sanitizedPapers = papersToSave.map((p) => ({
+        ...p,
+        rawText: p.rawText ? (p.rawText.length > 2000 ? p.rawText.slice(0, 2000) + '... [truncated for storage]' : p.rawText) : '',
+        analysis: p.analysis ? {
+          ...p.analysis,
+          evidences: (p.analysis.evidences || []).map((e) => ({
+            ...e,
+            quoteOrExcerpt: e.quoteOrExcerpt ? e.quoteOrExcerpt.slice(0, 300) : ''
+          }))
+        } : p.analysis
+      }));
+
+      try {
+        localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(sanitizedPapers));
+      } catch (secondError) {
+        console.warn('Secondary localStorage quota error. Saving essential paper metadata only...', secondError);
+        const ultraCompact = sanitizedPapers.map((p) => ({
+          ...p,
+          rawText: p.rawText ? p.rawText.slice(0, 500) : '',
+        }));
+        try {
+          localStorage.setItem(STORAGE_KEY_PAPERS, JSON.stringify(ultraCompact));
+        } catch (finalErr) {
+          console.error('Critical quota error saving papers:', finalErr);
+        }
+      }
+    }
   }
 
   async updatePaper(paper: IEEEPaper): Promise<void> {

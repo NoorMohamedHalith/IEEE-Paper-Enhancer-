@@ -623,12 +623,80 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
             </div>
           )}
 
-          {/* Section 9: Empirical Validation & Benchmarking Matrix */}
+          {/* Section 9: Scalable Deployment Roadmap */}
+          {projectSpec?.scalableDeployment && projectSpec.scalableDeployment.length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">
+                <Layers className="w-4 h-4" />
+                <span>9. Scalable Deployment Roadmap (100% Software-Based Evolution)</span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                {projectSpec.scalableDeployment.map((step, idx) => (
+                  <div key={idx} className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-1.5 flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="w-5 h-5 rounded bg-emerald-800 text-white font-mono font-bold text-[10px] flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <span className="text-[9px] font-bold text-emerald-800 dark:text-emerald-400 uppercase">{step.stage}</span>
+                      </div>
+                      <h4 className="font-bold text-zinc-900 dark:text-zinc-100">{step.title}</h4>
+                      <p className="text-zinc-600 dark:text-zinc-400 text-[11px] leading-relaxed">{step.description}</p>
+                    </div>
+
+                    <div className="pt-1.5 border-t border-zinc-200/80 dark:border-zinc-800/80 flex flex-wrap gap-1">
+                      {step.components.map((c, i) => (
+                        <span key={i} className="px-1.5 py-0.5 rounded bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-[9px] font-mono text-zinc-700 dark:text-zinc-300">
+                          {c}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Section 10: Proposed System Limitations & Transparency Declarations */}
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+              <HelpCircle className="w-4 h-4" />
+              <span>10. Proposed System Limitations & Transparency Declarations</span>
+            </div>
+
+            <div className="p-4 rounded-xl bg-amber-50/50 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-800/40 space-y-3 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="p-3 rounded-lg bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-800/50 space-y-1">
+                  <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 uppercase block">1. Simulation Constraints</span>
+                  <p className="text-zinc-700 dark:text-zinc-300 text-[11px]">
+                    Hardware sensor inputs are generated via synthetic RxJS software stream generators rather than physical IoT microcontrollers.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-lg bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-800/50 space-y-1">
+                  <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 uppercase block">2. AI-Estimated Metrics</span>
+                  <p className="text-zinc-700 dark:text-zinc-300 text-[11px]">
+                    Benchmarked latency and throughput figures represent sandbox execution and AI projections requiring live production load testing.
+                  </p>
+                </div>
+
+                <div className="p-3 rounded-lg bg-white dark:bg-zinc-900 border border-amber-200 dark:border-amber-800/50 space-y-1">
+                  <span className="text-[10px] font-bold text-amber-900 dark:text-amber-300 uppercase block">3. Future Physical Validation</span>
+                  <p className="text-zinc-700 dark:text-zinc-300 text-[11px]">
+                    Hardware-in-the-loop (HIL) testing with physical microcontrollers (ESP32 / Raspberry Pi) is designated as necessary future work.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 11: Empirical Validation & Benchmarking Matrix */}
           {analysis && (analysis.benchmarks || []).length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">
                 <BarChart3 className="w-4 h-4" />
-                <span>9. Empirical Validation & Benchmarking Matrix</span>
+                <span>11. Empirical Validation & Benchmarking Matrix</span>
               </div>
 
               <div className="overflow-x-auto rounded-xl border border-zinc-200 dark:border-zinc-800">
@@ -662,7 +730,7 @@ ${(analysis?.benchmarks || []).map((b) => `| ${b.metricName} | ${b.baselineValue
             </div>
           )}
 
-          {/* Section 10: IEEE Seal & Watermark */}
+          {/* Section 12: IEEE Seal & Watermark */}
           <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row items-center justify-between text-[11px] text-zinc-400 font-mono gap-2">
             <span>IEEE INNOVATEX METHODOLOGY ENGINE • AUTOMATED VERIFICATION REPORT</span>
             <span>CHECKSUM: {Math.random().toString(36).substring(2, 10).toUpperCase()}</span>

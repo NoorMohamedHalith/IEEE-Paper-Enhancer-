@@ -7,6 +7,7 @@ import { SettingsModal } from './components/common/SettingsModal';
 import { ResearchReportModal } from './components/common/ResearchReportModal';
 import { AuditTrailModal } from './components/common/AuditTrailModal';
 import { AutoSaveToast } from './components/common/AutoSaveToast';
+import { RemovePaperFloatingWidget } from './components/common/RemovePaperFloatingWidget';
 
 import { DashboardPage } from './components/pages/DashboardPage';
 import { PapersPage } from './components/pages/PapersPage';
@@ -69,6 +70,7 @@ const MainContent: React.FC = () => {
       <ResearchReportModal />
       <AuditTrailModal />
       <AutoSaveToast />
+      <RemovePaperFloatingWidget />
     </div>
   );
 };

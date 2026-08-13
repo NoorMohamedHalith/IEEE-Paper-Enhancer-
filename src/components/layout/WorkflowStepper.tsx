@@ -1,27 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { usePaperContext } from '../../context/PaperContext';
 import { WORKFLOW_STEPS, WorkflowStepId } from '../../types';
-import { Check, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight, Network, Sparkles } from 'lucide-react';
+import { AIWorkflowDiagram } from '../common/AIWorkflowDiagram';
 
 export const WorkflowStepper: React.FC = () => {
   const { activeTab, setActiveTab, activePaper } = usePaperContext();
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false);
 
   // Determine current step index based on activeTab
   const currentStep = WORKFLOW_STEPS.find((s) => s.tab === activeTab) || WORKFLOW_STEPS[0];
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-xl p-3 sm:p-4 shadow-2xs mb-6">
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
-            Research Enhancement Pipeline
-          </span>
-          <span className="text-xs text-zinc-400">|</span>
-          <span className="text-xs text-zinc-600 font-medium">
-            Step {currentStep.id} of 6: <strong className="text-zinc-900">{currentStep.name}</strong>
-          </span>
+    <>
+      <div className="bg-white border border-zinc-200 rounded-xl p-3 sm:p-4 shadow-2xs mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">
+              Research Enhancement Pipeline
+            </span>
+            <span className="text-xs text-zinc-400">|</span>
+            <span className="text-xs text-zinc-600 font-medium">
+              Step {currentStep.id} of 6: <strong className="text-zinc-900">{currentStep.name}</strong>
+            </span>
+          </div>
+
+          <button
+            onClick={() => setShowWorkflowModal(true)}
+            className="px-2.5 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100/80 text-emerald-900 border border-emerald-300 text-xs font-semibold flex items-center gap-1.5 transition-colors"
+          >
+            <Network className="w-3.5 h-3.5 text-emerald-800" />
+            <span>View 10-Step AI Workflow</span>
+          </button>
         </div>
-      </div>
 
       {/* Stepper Track */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
@@ -29,21 +40,21 @@ export const WorkflowStepper: React.FC = () => {
           const isCurrent = step.tab === activeTab;
           const isPassed = step.id < currentStep.id;
 
-          // Check paper stage completed status
+          // Check paper stage completed status based on actual work performed
           let isCompleted = false;
           if (activePaper) {
-            const isAnalyzed = activePaper.status === 'Analyzed';
-            const hasGaps = (activePaper.analysis?.researchGaps?.length || 0) > 0;
-            const hasRecs = (activePaper.analysis?.recommendations?.length || 0) > 0;
-            const hasSelected = (activePaper.selectedEnhancementIds?.length || 0) > 0;
-            const hasValidated = (activePaper.validatedEnhancementIds?.length || 0) > 0;
+            const isAnalyzed = activePaper.status === 'Analyzed' && activePaper.analysis !== undefined;
+            const hasApprovedGaps = (activePaper.approvedGapIds?.length || 0) > 0;
+            const hasSelectedEnhancements = (activePaper.selectedEnhancementIds?.length || 0) > 0;
+            const hasValidatedEnhancements = (activePaper.validatedEnhancementIds?.length || 0) > 0 && activePaper.projectStatus === 'Validated';
+            const isProjectGenerated = activePaper.projectStatus === 'Project Generated' || activePaper.projectStatus === 'Validated';
 
-            if (step.id === 1) isCompleted = true;
-            if (step.id === 2) isCompleted = isAnalyzed;
-            if (step.id === 3) isCompleted = isAnalyzed && (hasGaps || step.id <= currentStep.id);
-            if (step.id === 4) isCompleted = isAnalyzed && (hasRecs || hasSelected || step.id <= currentStep.id);
-            if (step.id === 5) isCompleted = isAnalyzed && (hasRecs || hasValidated || step.id <= currentStep.id);
-            if (step.id === 6) isCompleted = isAnalyzed && (hasRecs || hasValidated || currentStep.id === 6);
+            if (step.id === 1) isCompleted = true; // Paper is imported/selected
+            if (step.id === 2) isCompleted = isAnalyzed; // AI Analysis done
+            if (step.id === 3) isCompleted = isAnalyzed && hasApprovedGaps; // Research Gaps approved
+            if (step.id === 4) isCompleted = isAnalyzed && hasSelectedEnhancements; // Enhancements selected
+            if (step.id === 5) isCompleted = isAnalyzed && hasValidatedEnhancements; // Validation completed
+            if (step.id === 6) isCompleted = isAnalyzed && isProjectGenerated && hasValidatedEnhancements; // Final Spec ready
           }
 
           return (
@@ -55,9 +66,9 @@ export const WorkflowStepper: React.FC = () => {
                 ${
                   isCurrent
                     ? 'bg-emerald-50/80 border-emerald-800 ring-1 ring-emerald-800 text-emerald-950 font-semibold shadow-2xs'
-                    : isCompleted || isPassed
-                    ? 'bg-zinc-50 border-zinc-200 hover:bg-zinc-100/80 text-zinc-800'
-                    : 'bg-white border-zinc-200 text-zinc-400 hover:bg-zinc-50'
+                    : isCompleted
+                    ? 'bg-emerald-50/30 border-emerald-200/80 hover:bg-emerald-50/60 text-zinc-900'
+                    : 'bg-zinc-50/60 border-zinc-200 text-zinc-500 hover:bg-zinc-100/80 hover:text-zinc-800'
                 }
               `}
             >
@@ -69,7 +80,7 @@ export const WorkflowStepper: React.FC = () => {
                     isCurrent
                       ? 'bg-emerald-800 text-white'
                       : isCompleted
-                      ? 'bg-emerald-100 text-emerald-800'
+                      ? 'bg-emerald-700 text-white'
                       : 'bg-zinc-200 text-zinc-600'
                   }
                 `}
@@ -93,5 +104,12 @@ export const WorkflowStepper: React.FC = () => {
         })}
       </div>
     </div>
+
+      {showWorkflowModal && (
+        <div className="fixed inset-0 z-50 bg-zinc-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+          <AIWorkflowDiagram onClose={() => setShowWorkflowModal(false)} isModal={true} />
+        </div>
+      )}
+    </>
   );
 };

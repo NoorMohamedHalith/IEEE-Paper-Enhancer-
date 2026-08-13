@@ -282,14 +282,28 @@ export const EnhancedProjectPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-1 md:col-span-2">
+              <span className="text-[10px] font-bold text-emerald-900 uppercase tracking-wider">Engineering Contribution (Practical Implementation)</span>
+              <p className="text-xs font-bold text-emerald-950 leading-relaxed">
+                {projectSpec.researchNovelty.engineeringContribution || 'Modular software architecture, zero-hardware virtual MQTT event streaming pipeline, lock-free ring-buffer edge middleware, and self-contained CJS container runtime packaging.'}
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200 space-y-1 md:col-span-2">
+              <span className="text-[10px] font-bold text-blue-900 uppercase tracking-wider">Academic Originality (Methodology Distinction)</span>
+              <p className="text-xs text-blue-950 leading-relaxed font-medium">
+                {projectSpec.researchNovelty.academicOriginality || 'Applied methodology enhancement integrating AI residual estimation and edge queue decoupling on top of existing IEEE paper theoretical formulations.'}
+              </p>
+            </div>
+
             <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
               <span className="text-[10px] font-bold text-zinc-500 uppercase">Core Addressed Limitation</span>
               <p className="text-xs font-semibold text-rose-900">{projectSpec.researchNovelty.addressedLimitation}</p>
             </div>
 
-            <div className="p-4 rounded-xl bg-emerald-50/50 border border-emerald-200 space-y-1">
-              <span className="text-[10px] font-bold text-emerald-800 uppercase">Technical Novelty</span>
-              <p className="text-xs font-semibold text-emerald-950">{projectSpec.researchNovelty.technicalNovelty}</p>
+            <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
+              <span className="text-[10px] font-bold text-zinc-500 uppercase">Technical Novelty</span>
+              <p className="text-xs font-semibold text-zinc-900">{projectSpec.researchNovelty.technicalNovelty}</p>
             </div>
 
             <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 space-y-1">
@@ -419,7 +433,55 @@ export const EnhancedProjectPage: React.FC = () => {
         </div>
       )}
 
-      {/* Technology Stack & Implementation Plan */}
+      {/* Scalable Deployment Roadmap */}
+      {projectSpec?.scalableDeployment && projectSpec.scalableDeployment.length > 0 && (
+        <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded border border-emerald-200">
+                100% Software-Based Evolution
+              </span>
+              <h3 className="text-base font-bold text-zinc-900 mt-1 flex items-center gap-2">
+                <Layers className="w-5 h-5 text-emerald-800" />
+                Scalable Deployment Roadmap
+              </h3>
+            </div>
+            <span className="px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-800 text-white">
+              Zero Physical Hardware Requirement
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {projectSpec.scalableDeployment.map((step, idx) => (
+              <div key={idx} className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 flex flex-col justify-between space-y-3 relative">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="w-6 h-6 rounded-md bg-emerald-800 text-white font-mono font-bold text-xs flex items-center justify-center">
+                      {idx + 1}
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                      {step.stage}
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-zinc-900">{step.title}</h4>
+                  <p className="text-xs text-zinc-600 leading-relaxed">{step.description}</p>
+                </div>
+
+                <div className="pt-2 border-t border-zinc-200/80 space-y-1">
+                  <span className="text-[10px] font-bold text-zinc-500 uppercase">Core Components:</span>
+                  <div className="flex flex-wrap gap-1">
+                    {step.components.map((c, i) => (
+                      <span key={i} className="px-1.5 py-0.5 rounded bg-white border border-zinc-200 text-[10px] font-mono text-zinc-700">
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Technology Stack */}
         <div className="bg-white rounded-2xl border border-zinc-200 p-6 shadow-2xs space-y-4">

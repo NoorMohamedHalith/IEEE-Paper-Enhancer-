@@ -382,47 +382,49 @@ CMD ["node", "dist/server.cjs"]`
     ],
     expectedImpact: `Eliminates ${primaryLimitation} with zero physical hardware additions, providing a scalable, software-only implementation for production adoption.`,
     limitationsOfEnhancement: [
-      'Requires initial baseline dataset calibration under controlled conditions.',
-      'Slight memory allocation overhead during burst stream queuing spikes.',
-      'Software-only IoT telemetry simulator substitute for physical hardware testing.'
+      'Simulation Environment Constraints: Hardware sensors are represented via software-based synthetic RxJS event stream generators.',
+      'Reliance on AI-Estimated Metrics: Benchmark gains represent empirical sandbox execution and require full-scale production stress testing.',
+      'Future Physical Validation Need: Hardware-in-the-loop (HIL) testing with physical ESP32/Raspberry Pi microcontrollers remains a required future step.'
     ],
     futureWork: [
       'Extend auto-scaling buffer bounds across distributed Kubernetes clusters.',
-      'Integrate real-time stream telemetry telemetry exporters for Prometheus/Grafana.',
+      'Integrate real-time stream telemetry exporters for Prometheus/Grafana.',
       'Conduct hardware-in-the-loop validation with physical ESP32/Raspberry Pi microcontrollers.'
     ],
     researchNovelty: {
       addressedLimitation: primaryLimitation,
       technicalNovelty: 'Lock-free circular memory ring-buffering combined with real-time AI residual error compensation.',
-      aiContribution: 'Replaces static threshold rulebooks with Gemini-powered dynamic residual estimation.',
+      engineeringContribution: 'Modular software architecture, zero-hardware virtual MQTT event streaming pipeline, lock-free ring-buffer edge middleware, and self-contained CJS container runtime packaging.',
+      academicOriginality: 'Applied methodology enhancement integrating AI residual estimation and edge queue decoupling on top of existing IEEE paper theoretical formulations.',
+      aiContribution: 'Replaces static threshold rulebooks with Gemini-powered dynamic residual error estimation.',
       edgeContribution: 'Shifts time-critical telemetry processing from cloud servers down to local edge middleware queues.',
       iotIntegrationApproach: '100% software-simulated MQTT telemetry pipeline using RxJS event generators.',
       differentiationFromOriginal: 'Decouples heavy processing loops, reducing p99 latency by over 60% without requiring physical hardware modifications.'
     },
     scalableDeployment: [
       {
-        stage: 'Stage 1: Local Software Dev',
-        title: 'Development Environment',
-        description: 'Run TypeScript/Node.js express server with Vite dev middleware on port 3000.',
-        components: ['Node.js 20 ESM', 'Vite Dev Server', 'IndexedDB Local Cache']
+        stage: 'Stage 1: Local Development',
+        title: 'Software Prototype Sandbox',
+        description: 'Run TypeScript/Node.js express server with Vite dev middleware on port 3000 with virtual RxJS IoT device stream simulators.',
+        components: ['Node.js 20 ESM', 'Vite Dev Middleware', 'IndexedDB Local Cache', 'Virtual IoT Generator']
       },
       {
         stage: 'Stage 2: Docker Containerization',
-        title: 'Container Runtime Packaging',
-        description: 'Bundle server into self-contained single-file dist/server.cjs image.',
-        components: ['Docker Engine', 'esbuild CJS Compiler', 'Alpine Linux Base Image']
+        title: 'Single-File CJS Image Packaging',
+        description: 'Bundle backend and virtual IoT middleware into a self-contained single-file dist/server.cjs image using esbuild CJS compilation.',
+        components: ['Docker Engine', 'esbuild CJS Compiler', 'Alpine Linux Base', 'Zero Hardware Config']
       },
       {
-        stage: 'Stage 3: Edge Node Gateway',
-        title: 'Edge Ring-Buffer Deployment',
-        description: 'Deploy Edge Middleware onto local edge gateway or lightweight container host.',
-        components: ['Lock-Free Ring Buffer', 'MQTT Message Router', 'Local Cache']
+        stage: 'Stage 3: Edge Node Integration',
+        title: 'Lightweight Edge Ring-Buffer Gateway',
+        description: 'Deploy Lock-Free Ring Buffer middleware onto local edge gateway containers or lightweight edge host nodes for microsecond stream queueing.',
+        components: ['Lock-Free Ring Buffer', 'MQTT Gateway Router', 'In-Memory Stream Queue', 'Edge Cache']
       },
       {
-        stage: 'Stage 4: Cloud Analytics Backend',
-        title: 'Centralized Telemetry Aggregation',
-        description: 'Persist aggregated performance logs and decision records into cloud Firestore.',
-        components: ['Google Cloud Run', 'Firestore Database', 'Gemini 3.6 Flash API']
+        stage: 'Stage 4: Cloud Analytics Sync',
+        title: 'Centralized Telemetry & AI Sync',
+        description: 'Persist aggregated performance metrics, decision records, and audit logs to cloud Firestore and trigger Gemini API residual calibrations.',
+        components: ['Google Cloud Run', 'Firestore Database', 'Gemini 3.6 Flash API', 'Central Dashboard']
       }
     ],
     decisionSupport: {

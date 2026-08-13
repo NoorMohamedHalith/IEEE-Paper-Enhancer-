@@ -339,14 +339,16 @@ export const PaperProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           uploadedAt: new Date().toISOString(),
           fileSize: '1.8 MB',
           sourceType: 'pdf',
-          projectStatus: 'Project Generated',
+          projectStatus: 'In Analysis',
           rawText: 'Abstract—High-throughput stream processing in edge computing environments faces latency bottlenecks and thread contention under non-stationary traffic spikes. This IEEE paper evaluates asynchronous lock-free queueing and dynamic residual calibration models to minimize packet drops and processing latency...'
         };
         const analysis = generateLocalGroundedAnalysis(samplePaper);
         samplePaper.analysis = analysis;
         const recommendations = await generateEnhancementRecommendations(samplePaper);
         analysis.recommendations = recommendations;
-        samplePaper.selectedEnhancementIds = recommendations.map(r => r.id);
+        samplePaper.selectedEnhancementIds = [];
+        samplePaper.approvedGapIds = [];
+        samplePaper.validatedEnhancementIds = [];
 
         await adapter.savePaper(samplePaper);
         setPapers([samplePaper]);
